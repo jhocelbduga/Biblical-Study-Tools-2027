@@ -9,6 +9,7 @@
     <meta name="theme-color" content="#2563eb">
     <title>Biblical Study Tools</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -22,7 +23,7 @@
                 <div class="collapse navbar-collapse navigation" id="mainNavigation">
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                         <li class="nav-item"><a class="nav-link" href="#home">Home</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#daily-reading">Daily Verse</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#verse-generator">Daily Verse</a></li>
                         <li class="nav-item"><a class="nav-link" href="#reading-plans">Reading Plans</a></li>
                         <li class="nav-item"><a class="nav-link" href="#bible-explorer">Bible Explorer</a></li>
                         <li class="nav-item"><a class="nav-link" href="#statistics">Statistics</a></li>
@@ -38,7 +39,7 @@
                 <p class="eyebrow text-primary fw-semibold text-uppercase mb-2">Your companion in the Word</p>
                 <h1 class="display-4 fw-bold mb-3">Grow Deeper in Scripture</h1>
                 <p class="lead text-body-secondary mb-4">
-                    Explore daily readings, discover random verses, track progress, and study God's Word with modern tools.
+                    Read the KJV Bible and generate random verses. Reading plans and Bible analytics are coming soon.
                 </p>
                 <div class="d-flex flex-column flex-sm-row justify-content-center gap-3">
                     <a class="btn btn-primary btn-lg" href="#daily-reading">Start Reading</a>
@@ -47,47 +48,162 @@
             </div>
         </section>
 
-        <section aria-label="Study tools">
+        <section class="study-tools py-5" aria-label="Study tools">
+            <div class="text-center mb-5">
+                <span class="badge bg-primary-subtle text-primary mb-2">Biblical Resources</span>
+                <h2 class="display-6 fw-bold">Study Tools &amp; Resources</h2>
+                <p class="lead text-secondary mx-auto" style="max-width: 700px;">
+                    Use the Bible reader and verse generator today, with more
+                    study tools planned for your journey.
+                </p>
+            </div>
+
             <div class="row g-4">
-                <div class="col-12 col-md-6 col-xl-3" id="daily-reading">
-                    <article class="card study-card h-100">
-                        <div class="card-body">
-                            <div class="tool-icon" aria-hidden="true">📖</div>
-                            <h2 class="h5 card-title">Daily Reading</h2>
-                            <p class="card-text text-body-secondary">Follow your personalised reading schedule.</p>
+                <div class="col-12 col-md-6 col-xl-3">
+                    <article class="card study-card border-0 h-100 shadow-sm" id="daily-reading">
+                        <div class="card-body d-flex flex-column p-4">
+                            <div class="icon-circle bg-primary-subtle mb-3" aria-hidden="true">
+                                <i class="bi bi-book text-primary"></i>
+                            </div>
+                            <h3 class="h5 fw-semibold">Daily Reading</h3>
+                            <p class="text-secondary">Follow a scripture journey with daily readings and devotional guidance.</p>
+                            <ul class="list-unstyled small mb-4">
+                                <li>✓ Browse Bible books</li>
+                                <li>✓ Choose a chapter</li>
+                                <li>✓ Read KJV verses</li>
+                            </ul>
+                            <a class="btn btn-primary mt-auto" href="../index.html">Start Reading</a>
                         </div>
                     </article>
                 </div>
-                <div class="col-12 col-md-6 col-xl-3" id="bible-explorer">
-                    <article class="card study-card h-100">
-                        <div class="card-body">
-                            <div class="tool-icon" aria-hidden="true">🎲</div>
-                            <h2 class="h5 card-title">Verse Generator</h2>
-                            <p class="card-text text-body-secondary">Discover random verses for reflection and study.</p>
+
+                <div class="col-12 col-md-6 col-xl-3">
+                    <article class="card study-card border-0 h-100 shadow-sm" id="verse-generator">
+                        <div class="card-body d-flex flex-column p-4">
+                            <div class="icon-circle bg-success-subtle mb-3" aria-hidden="true">
+                                <i class="bi bi-shuffle text-success"></i>
+                            </div>
+                            <h3 class="h5 fw-semibold">Verse Generator</h3>
+                            <p class="text-secondary">Discover an inspirational scripture passage for devotion and reflection.</p>
+                            <ul class="list-unstyled small mb-4">
+                                <li>✓ Random verses</li>
+                                <li>Topic filters planned</li>
+                                <li>Verse sharing planned</li>
+                            </ul>
+                            <button class="btn btn-primary random-verse-btn mt-auto" type="button">Generate Verse</button>
                         </div>
                     </article>
                 </div>
-                <div class="col-12 col-md-6 col-xl-3" id="reading-plans">
-                    <article class="card study-card h-100">
-                        <div class="card-body">
-                            <div class="tool-icon" aria-hidden="true">📅</div>
-                            <h2 class="h5 card-title">Reading Plans</h2>
-                            <p class="card-text text-body-secondary">Complete annual or topical Bible plans.</p>
+
+                <div class="col-12 col-md-6 col-xl-3">
+                    <article class="card study-card border-0 h-100 shadow-sm" id="reading-plans">
+                        <div class="card-body d-flex flex-column p-4">
+                            <div class="icon-circle bg-warning-subtle mb-3" aria-hidden="true">
+                                <i class="bi bi-calendar-check text-warning"></i>
+                            </div>
+                            <h3 class="h5 fw-semibold">Reading Plans</h3>
+                            <p class="text-secondary">Choose a 365-day Bible plan or a 14-day topical study, and keep track of your progress.</p>
+                            <ul class="list-unstyled small mb-4">
+                                <li>Canonical and chronological plans</li>
+                                <li>Daily passage references</li>
+                                <li>Progress saved on this device</li>
+                            </ul>
+                            <button class="btn btn-primary mt-auto" id="chooseReadingPlan" type="button" data-bs-toggle="modal" data-bs-target="#readingPlanModal">Choose a Plan</button>
                         </div>
                     </article>
                 </div>
-                <div class="col-12 col-md-6 col-xl-3" id="statistics">
-                    <article class="card study-card h-100">
-                        <div class="card-body">
-                            <div class="tool-icon" aria-hidden="true">📊</div>
-                            <h2 class="h5 card-title">Bible Analytics</h2>
-                            <p class="card-text text-body-secondary">View book, chapter, and verse statistics.</p>
+
+                <div class="col-12 col-md-6 col-xl-3">
+                    <article class="card study-card border-0 h-100 shadow-sm" id="bible-explorer">
+                        <div class="card-body d-flex flex-column p-4">
+                            <div class="icon-circle bg-info-subtle mb-3" aria-hidden="true">
+                                <i class="bi bi-bar-chart-line text-info"></i>
+                            </div>
+                            <h3 class="h5 fw-semibold" id="statistics">Bible Analytics</h3>
+                            <p class="text-secondary">Explore books, chapters, verse counts, reading history, and biblical statistics.</p>
+                            <ul class="list-unstyled small mb-4">
+                                <li>Bible statistics</li>
+                                <li>Reading insights</li>
+                                <li>Study reports</li>
+                            </ul>
+                            <button class="btn btn-outline-secondary mt-auto" type="button" disabled>Coming soon</button>
                         </div>
                     </article>
                 </div>
             </div>
         </section>
+
+        <section class="reading-plan-progress mt-5" id="activeReadingPlan" aria-labelledby="activePlanTitle" aria-live="polite" hidden>
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4 p-lg-5">
+                    <div class="d-flex flex-column flex-md-row justify-content-between gap-3 mb-4">
+                        <div>
+                            <p class="eyebrow text-primary fw-semibold text-uppercase mb-2">Your reading journey</p>
+                            <h2 class="h3 fw-bold mb-1" id="activePlanTitle"></h2>
+                            <p class="text-body-secondary mb-0" id="activePlanDescription"></p>
+                        </div>
+                        <button class="btn btn-outline-primary align-self-md-start" type="button" data-bs-toggle="modal" data-bs-target="#readingPlanModal">Change plan</button>
+                    </div>
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between small mb-2">
+                            <span id="planProgressLabel"></span>
+                            <span id="planProgressPercent"></span>
+                        </div>
+                        <div class="progress" role="progressbar" aria-label="Reading plan progress" aria-valuemin="0" aria-valuemax="100" id="planProgressBar">
+                            <div class="progress-bar" id="planProgressFill"></div>
+                        </div>
+                    </div>
+                    <div class="reading-day-panel rounded-4 p-4">
+                        <div class="d-flex flex-column flex-sm-row justify-content-between gap-3 mb-3">
+                            <div>
+                                <p class="small text-body-secondary text-uppercase fw-semibold mb-1" id="readingDayLabel"></p>
+                                <h3 class="h5 fw-bold mb-0" id="readingDayTitle"></h3>
+                            </div>
+                            <span class="badge rounded-pill align-self-sm-start" id="readingDayStatus"></span>
+                        </div>
+                        <ul class="reading-passages mb-4" id="readingPassages"></ul>
+                        <div class="d-flex flex-column flex-sm-row justify-content-between gap-3">
+                            <button class="btn btn-outline-secondary" id="previousReadingDay" type="button">Previous day</button>
+                            <button class="btn btn-primary" id="completeReadingDay" type="button">Mark day complete</button>
+                            <button class="btn btn-outline-secondary" id="nextReadingDay" type="button">Next day</button>
+                        </div>
+                    </div>
+                    <p class="small text-body-secondary mt-3 mb-0" id="readingPlanFeedback" role="status"></p>
+                </div>
+            </div>
+        </section>
     </main>
+
+    <div class="modal fade" id="readingPlanModal" tabindex="-1" aria-labelledby="readingPlanModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div>
+                        <p class="eyebrow text-primary fw-semibold text-uppercase mb-1">Start or resume</p>
+                        <h2 class="modal-title h4" id="readingPlanModalTitle">Choose a reading plan</h2>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-body-secondary">Your progress is saved separately for each plan in this browser.</p>
+                    <div class="d-grid gap-3">
+                        <button class="btn btn-outline-primary text-start p-3 reading-plan-option" type="button" data-plan-id="annual">
+                            <span class="d-block fw-semibold">Read the Bible in a Year</span>
+                            <span class="small text-body-secondary">All 1,189 chapters in canonical order · 365 days</span>
+                        </button>
+                        <button class="btn btn-outline-primary text-start p-3 reading-plan-option" type="button" data-plan-id="chronological">
+                            <span class="d-block fw-semibold">Chronological Bible</span>
+                            <span class="small text-body-secondary">All 1,189 chapters in approximate book-level historical order · 365 days</span>
+                        </button>
+                        <button class="btn btn-outline-primary text-start p-3 reading-plan-option" type="button" data-plan-id="topical">
+                            <span class="d-block fw-semibold">Foundations of Faith</span>
+                            <span class="small text-body-secondary">A guided topical study · 14 days</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <footer class="site-footer py-4 mt-auto">
         <div class="container text-center">

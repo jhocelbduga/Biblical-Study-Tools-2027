@@ -81,6 +81,43 @@ body {
     box-shadow: 0 0.75rem 1.5rem rgb(15 23 42 / 10%);
 }
 
+.icon-circle {
+    width: 4rem;
+    height: 4rem;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    font-size: 1.75rem;
+}
+
+.study-card .btn {
+    border-radius: 0.75rem;
+}
+
+.reading-plan-progress {
+    scroll-margin-top: 2rem;
+}
+
+.reading-day-panel {
+    background: var(--brand-soft);
+}
+
+.reading-passages {
+    padding-left: 1.25rem;
+}
+
+.reading-passages li + li {
+    margin-top: 0.5rem;
+}
+
+.reading-plan-option {
+    white-space: normal;
+}
+
+.reading-plan-option:hover {
+    background: var(--brand-soft);
+}
+
 .tool-icon {
     margin-bottom: 1rem;
     font-size: 2rem;

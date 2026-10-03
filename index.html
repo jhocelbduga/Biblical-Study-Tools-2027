@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Biblical Study Tools - Daily Bible reading plans, verse generators, scripture study tools and biblical insights.">
+    <meta name="keywords" content="Bible Study, Scripture Tools, Reading Plan, Christian Devotional, Daily Verses">
+    <meta name="author" content="Biblical Study Tools">
+    <meta name="theme-color" content="#2563eb">
+    <title>Biblical Study Tools</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg site-navbar">
+            <div class="container">
+                <a class="navbar-brand fw-bold" href="#home">✝️ Biblical Study Tools</a>
+                <button class="navbar-toggler menu-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavigation" aria-controls="mainNavigation" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse navigation" id="mainNavigation">
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                        <li class="nav-item"><a class="nav-link" href="#home">Home</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#daily-reading">Daily Verse</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#reading-plans">Reading Plans</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#bible-explorer">Bible Explorer</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#statistics">Statistics</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container py-4 py-lg-5" id="home">
+        <section class="hero text-center rounded-4 px-3 py-5 px-lg-5 mb-5">
+            <div class="mx-auto hero-content">
+                <p class="eyebrow text-primary fw-semibold text-uppercase mb-2">Your companion in the Word</p>
+                <h1 class="display-4 fw-bold mb-3">Grow Deeper in Scripture</h1>
+                <p class="lead text-body-secondary mb-4">
+                    Explore daily readings, discover random verses, track progress, and study God's Word with modern tools.
+                </p>
+                <div class="d-flex flex-column flex-sm-row justify-content-center gap-3">
+                    <a class="btn btn-primary btn-lg" href="#daily-reading">Start Reading</a>
+                    <button class="btn btn-outline-secondary btn-lg random-verse-btn" type="button">Random Verse</button>
+                </div>
+            </div>
+        </section>
+
+        <section aria-label="Study tools">
+            <div class="row g-4">
+                <div class="col-12 col-md-6 col-xl-3" id="daily-reading">
+                    <article class="card study-card h-100">
+                        <div class="card-body">
+                            <div class="tool-icon" aria-hidden="true">📖</div>
+                            <h2 class="h5 card-title">Daily Reading</h2>
+                            <p class="card-text text-body-secondary">Follow your personalised reading schedule.</p>
+                        </div>
+                    </article>
+                </div>
+                <div class="col-12 col-md-6 col-xl-3" id="bible-explorer">
+                    <article class="card study-card h-100">
+                        <div class="card-body">
+                            <div class="tool-icon" aria-hidden="true">🎲</div>
+                            <h2 class="h5 card-title">Verse Generator</h2>
+                            <p class="card-text text-body-secondary">Discover random verses for reflection and study.</p>
+                        </div>
+                    </article>
+                </div>
+                <div class="col-12 col-md-6 col-xl-3" id="reading-plans">
+                    <article class="card study-card h-100">
+                        <div class="card-body">
+                            <div class="tool-icon" aria-hidden="true">📅</div>
+                            <h2 class="h5 card-title">Reading Plans</h2>
+                            <p class="card-text text-body-secondary">Complete annual or topical Bible plans.</p>
+                        </div>
+                    </article>
+                </div>
+                <div class="col-12 col-md-6 col-xl-3" id="statistics">
+                    <article class="card study-card h-100">
+                        <div class="card-body">
+                            <div class="tool-icon" aria-hidden="true">📊</div>
+                            <h2 class="h5 card-title">Bible Analytics</h2>
+                            <p class="card-text text-body-secondary">View book, chapter, and verse statistics.</p>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer py-4 mt-auto">
+        <div class="container text-center">
+            <p class="mb-0 text-body-secondary">© 2027 Biblical Study Tools By Jhocel Duga</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="index.js"></script>
+</body>
+</html>

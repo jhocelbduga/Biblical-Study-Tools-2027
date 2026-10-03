@@ -58,6 +58,31 @@ body {
     max-width: 760px;
 }
 
+.verse-modal .modal-content {
+    color: var(--bs-body-color);
+    background: var(--surface-background);
+    border: 1px solid var(--surface-border);
+    border-radius: 1.25rem;
+    box-shadow: 0 1.5rem 4rem rgb(15 23 42 / 20%);
+}
+
+.verse-card {
+    color: var(--bs-body-color);
+    background: var(--brand-soft);
+    border: 1px solid var(--surface-border);
+}
+
+.verse-card blockquote {
+    font-size: clamp(1.15rem, 3vw, 1.5rem);
+    line-height: 1.65;
+}
+
+.verse-card figcaption {
+    color: var(--brand-color);
+    font-size: 1rem;
+    font-weight: 600;
+}
+
 .eyebrow {
     letter-spacing: 0.08em;
 }
@@ -116,6 +141,118 @@ body {
 
 .reading-plan-option:hover {
     background: var(--brand-soft);
+}
+
+.bible-analytics {
+    scroll-margin-top: 2rem;
+}
+
+.analytics-stat-card,
+.analytics-panel {
+    color: var(--bs-body-color);
+    background: var(--surface-background);
+    border-color: var(--surface-border);
+    border-radius: 1rem;
+}
+
+.analytics-stat-card .h3 {
+    color: var(--brand-color);
+}
+
+.analytics-search {
+    max-width: 15rem;
+}
+
+.book-analytics-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 1fr));
+    gap: 0.5rem;
+    max-height: 28rem;
+    overflow-y: auto;
+}
+
+.book-analytics-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.2rem;
+    padding: 0.75rem;
+    color: var(--bs-body-color);
+    text-align: left;
+    background: var(--surface-background);
+    border: 1px solid var(--surface-border);
+    border-radius: 0.75rem;
+}
+
+.book-analytics-item:hover,
+.book-analytics-item:focus-visible {
+    background: var(--brand-soft);
+    border-color: var(--brand-color);
+}
+
+.selected-book-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+    gap: 0.75rem;
+}
+
+.selected-book-stats > div,
+.reading-history-day {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem;
+    background: var(--page-background);
+    border-radius: 0.5rem;
+}
+
+.selected-book-stats > div {
+    flex-direction: column;
+}
+
+.selected-book-stats span,
+.reading-history-day span {
+    color: var(--bs-secondary-color);
+    font-size: 0.875rem;
+}
+
+.chapter-number-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    max-height: 13rem;
+    overflow-y: auto;
+}
+
+.chapter-number {
+    display: flex;
+    min-width: 7.75rem;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding: 0.5rem 0.65rem;
+    color: var(--bs-body-color);
+    background: var(--page-background);
+    border: 1px solid var(--surface-border);
+    border-radius: 0.5rem;
+}
+
+.chapter-number strong {
+    font-size: 0.875rem;
+}
+
+.chapter-number span {
+    color: var(--bs-secondary-color);
+    font-size: 0.75rem;
+}
+
+.reading-history-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+    gap: 0.5rem;
+}
+
+.reading-history-day {
+    align-items: center;
 }
 
 .tool-icon {

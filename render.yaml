@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: biblical-study-tools-2027
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: MAILCHIMP_API_KEY
+        sync: false
+      - key: MAILCHIMP_AUDIENCE_ID
+        sync: false

@@ -1,0 +1,13 @@
+{
+  "name": "biblical-study-tools",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "check": "node --check server.js && node --check index.js && node --check install.js"
+  }
+}

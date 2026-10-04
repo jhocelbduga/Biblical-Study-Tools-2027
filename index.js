@@ -12,8 +12,52 @@ function initialiseApp() {
     initialiseVerseGenerator();
     initialiseReadingPlans();
     initialiseBibleAnalytics();
+    initialiseSubscription();
 
     console.log("Biblical Study Tools Loaded");
+}
+
+function initialiseSubscription() {
+    const form = document.getElementById("subscribeForm");
+    const feedback = document.getElementById("subscribeFeedback");
+    const submitButton = document.getElementById("subscribeSubmit");
+
+    form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        if (!form.reportValidity()) return;
+
+        submitButton.disabled = true;
+        feedback.className = "small mt-3 mb-0 text-body-secondary";
+        feedback.textContent = "Submitting your subscription…";
+
+        try {
+            const response = await fetch("/api/subscribe", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    name: form.elements.name.value.trim(),
+                    email: form.elements.email.value.trim(),
+                    contact: form.elements.contact.value.trim()
+                })
+            });
+            const result = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(result.error || "Your subscription could not be submitted. Please try again.");
+            }
+
+            form.reset();
+            feedback.className = "small mt-3 mb-0 text-success";
+            feedback.textContent = result.message;
+        } catch (error) {
+            feedback.className = "small mt-3 mb-0 text-danger";
+            feedback.textContent = error instanceof Error
+                ? error.message
+                : "Your subscription could not be submitted. Please try again.";
+            console.error("Unable to submit mailing-list subscription:", error);
+        } finally {
+            submitButton.disabled = false;
+        }
+    });
 }
 
 /**

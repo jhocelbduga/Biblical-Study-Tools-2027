@@ -1,4 +1,4 @@
-import { createReadStream, existsSync, statSync } from "node:fs";
+import { createReadStream, existsSync, readFileSync, statSync } from "node:fs";
 import { createServer } from "node:http";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -8,6 +8,43 @@ const MAX_BODY_SIZE = 8 * 1024;
 const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
 const RATE_LIMIT_MAX_REQUESTS = 5;
 const rateLimits = new Map();
+const PUBLIC_ORIGIN = "https://biblical-study-tools-2027.onrender.com";
+const SHARE_VERSES = new Map([
+    ["jeremiah-29-11", ["Jeremiah 29:11", "For I know the thoughts that I think toward you, saith the LORD, thoughts of peace, and not of evil, to give you an expected end."]],
+    ["philippians-4-13", ["Philippians 4:13", "I can do all things through Christ which strengtheneth me."]],
+    ["psalm-23-1", ["Psalm 23:1", "The LORD is my shepherd; I shall not want."]],
+    ["john-3-16", ["John 3:16", "For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life."]],
+    ["proverbs-3-5", ["Proverbs 3:5", "Trust in the LORD with all thine heart; and lean not unto thine own understanding."]],
+    ["psalm-46-1", ["Psalm 46:1", "God is our refuge and strength, a very present help in trouble."]],
+    ["romans-8-28", ["Romans 8:28", "And we know that all things work together for good to them that love God, to them who are the called according to his purpose."]],
+    ["isaiah-41-10", ["Isaiah 41:10", "Fear thou not; for I am with thee: be not dismayed; for I am thy God: I will strengthen thee; yea, I will help thee; yea, I will uphold thee with the right hand of my righteousness."]],
+    ["matthew-11-28", ["Matthew 11:28", "Come unto me, all ye that labour and are heavy laden, and I will give you rest."]],
+    ["joshua-1-9", ["Joshua 1:9", "Have not I commanded thee? Be strong and of a good courage; be not afraid, neither be thou dismayed: for the LORD thy God is with thee whithersoever thou goest."]]
+]);
+
+function escapeAttribute(value) {
+    return value.replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[character]));
+}
+
+function buildShareTags(verseId) {
+    const verse = SHARE_VERSES.get(verseId);
+    if (!verse) return "";
+    const [reference, text] = verse;
+    const pageUrl = `${PUBLIC_ORIGIN}/?verse=${verseId}`;
+    const imageUrl = `${PUBLIC_ORIGIN}/images/verses/${verseId}.png`;
+    return [
+        `<meta property="og:url" content="${pageUrl}">`,
+        `<meta property="og:title" content="${escapeAttribute(`${reference} (KJV)`)}">`,
+        `<meta property="og:description" content="${escapeAttribute(`“${text}”`)}">`,
+        `<meta property="og:image" content="${imageUrl}">`,
+        `<meta property="og:image:type" content="image/png">`,
+        `<meta property="og:image:width" content="1200">`,
+        `<meta property="og:image:height" content="630">`,
+        `<meta property="og:image:alt" content="${escapeAttribute(`${reference}: ${text}`)}">`,
+        `<meta name="twitter:card" content="summary_large_image">`,
+        `<meta name="twitter:image" content="${imageUrl}">`
+    ].join("\n    ");
+}
 
 const MIME_TYPES = new Map([
     [".css", "text/css; charset=utf-8"],
@@ -213,7 +250,7 @@ async function subscribe(request, response) {
     });
 }
 
-function serveStatic(request, response, pathname) {
+function serveStatic(request, response, pathname, searchParams) {
     if (request.method !== "GET" && request.method !== "HEAD") {
         sendJson(response, 405, { error: "This method is not supported." });
         return;
@@ -243,6 +280,20 @@ function serveStatic(request, response, pathname) {
 
     if (!existsSync(filePath) || !statSync(filePath).isFile()) {
         sendJson(response, 404, { error: "Not found." });
+        return;
+    }
+
+    const shareTags = relativePath === "index.html" ? buildShareTags(searchParams.get("verse")) : "";
+    if (shareTags) {
+        const html = readFileSync(filePath, "utf8")
+            .replace(/\s*<meta (?:property="og:(?:url|title|description|image[^"]*)"|name="twitter:[a-z]+")[^>]*>/g, "")
+            .replace("</head>", `    ${shareTags}\n</head>`);
+        response.writeHead(200, {
+            "Cache-Control": "no-cache",
+            "Content-Type": "text/html; charset=utf-8",
+            "X-Content-Type-Options": "nosniff"
+        });
+        response.end(request.method === "HEAD" ? undefined : html);
         return;
     }
 
@@ -277,7 +328,7 @@ const server = createServer((request, response) => {
         return;
     }
 
-    serveStatic(request, response, requestUrl.pathname);
+    serveStatic(request, response, requestUrl.pathname, requestUrl.searchParams);
 });
 
 const port = Number(process.env.PORT) || 3000;

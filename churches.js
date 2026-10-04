@@ -341,7 +341,7 @@
                 fromOverpass = false;
                 if (!elements.length) throw error;
             }
-            if (fromOverpass) try {
+            if (fromOverpass && elements.length) try {
                 sessionStorage.setItem(cacheKey, JSON.stringify(elements));
             } catch {
                 // storage full; caching is optional

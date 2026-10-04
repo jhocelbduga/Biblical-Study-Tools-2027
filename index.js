@@ -386,6 +386,12 @@ function initialiseVerseGenerator() {
             `&quote=${encodeURIComponent(quote)}`;
     }
 
+    shareButton.addEventListener("click", () => {
+        if (!currentVerse || !window.ProfileStore) return;
+        window.ProfileStore.addPost(`“${currentVerse.text}”`, currentVerse.reference);
+        window.ProfileStore.addActivity(`Shared ${currentVerse.reference} on Facebook`);
+    });
+
     function showVerse(verse, updateAddress = true) {
         renderVerse(verse);
         if (updateAddress && window.location.protocol !== "file:") {

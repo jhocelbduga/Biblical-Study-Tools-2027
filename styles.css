@@ -748,3 +748,9 @@ body {
         transition-duration: 0.01ms !important;
     }
 }
+.discover-search { max-width: 560px; }
+.discover-card { border-color: var(--surface-border); background: var(--surface-background); border-radius: 1rem; transition: transform .15s, box-shadow .15s; }
+.discover-card:hover { transform: translateY(-2px); box-shadow: 0 .5rem 1.25rem rgba(0,0,0,.08); }
+.discover-card blockquote { font-family: Georgia, serif; line-height: 1.6; }
+.discover-tag { background: var(--brand-soft); color: var(--brand-color); font-weight: 600; }
+.discover-cta { background: var(--brand-soft); border-radius: 1.25rem; }

@@ -1,9 +1,11 @@
-const CACHE_NAME = "biblical-study-tools-shell-v3";
+const CACHE_NAME = "biblical-study-tools-shell-v4";
 const APP_SHELL = [
     "./",
     "./index.html",
     "./styles.css",
     "./index.js",
+    "./discover.html",
+    "./discover.js",
     "./install.js",
     "./manifest.webmanifest",
     "./icons/icon-192.png",

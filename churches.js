@@ -391,6 +391,7 @@
             church.website ? `<a class="btn btn-sm btn-outline-secondary" href="${escapeHtml(church.website)}" target="_blank" rel="noopener noreferrer"><i class="bi bi-globe2 me-1" aria-hidden="true"></i>Website</a>` : "",
             church.facebook ? `<a class="btn btn-sm btn-outline-secondary" href="${escapeHtml(church.facebook)}" target="_blank" rel="noopener noreferrer"><i class="bi bi-facebook me-1" aria-hidden="true"></i>Facebook</a>` : "",
             church.wikipedia ? `<a class="btn btn-sm btn-outline-secondary" href="${escapeHtml(church.wikipedia)}" target="_blank" rel="noopener noreferrer"><i class="bi bi-wikipedia me-1" aria-hidden="true"></i>Wikipedia</a>` : "",
+            `<button type="button" class="btn btn-sm btn-outline-success" data-church-qr data-name="${escapeHtml(church.hasName ? church.name : "")}" data-address="${escapeHtml(church.address || "")}" data-denomination="${escapeHtml(church.denominationLabel || (church.catholic ? "Catholic" : ""))}" data-lat="${church.lat}" data-lon="${church.lon}" aria-label="Show QR code to join ${escapeHtml(label)} as a parishioner"><i class="bi bi-qr-code me-1" aria-hidden="true"></i>QR</button>`,
             `<a class="btn btn-sm btn-outline-secondary" href="${mapsOpen}" target="_blank" rel="noopener"><i class="bi bi-map me-1" aria-hidden="true"></i>Maps</a>`,
             `<a class="btn btn-sm btn-outline-secondary" href="${webSearch}" target="_blank" rel="noopener"><i class="bi bi-search me-1" aria-hidden="true"></i>Search the web</a>`
         ].filter(Boolean).join("");

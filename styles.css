@@ -780,3 +780,6 @@ body {
 .profile-empty { padding: 1.5rem 0; }
 .profile-tabs .nav-link { color: #28654f; }
 .profile-tabs .nav-link.active { background: #28654f; color: #fff; }
+
+.qr-box { width: min(260px, 100%); background: #fff; padding: .5rem; border: 1px solid #e3e8e5; border-radius: 12px; }
+.qr-box svg { display: block; width: 100%; height: auto; }

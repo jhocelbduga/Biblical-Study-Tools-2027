@@ -14,10 +14,48 @@ function initialiseApp() {
     initialiseBibleAnalytics();
     initialiseSubscription();
     initialiseNotifications();
+    initialiseInviteLanding();
 
     console.log("Biblical Study Tools Loaded");
 }
 
+const SUBSCRIBED_KEY = "bstSubscribed";
+
+// A scanned friend or church QR code lands here first so new visitors are invited to subscribe.
+function initialiseInviteLanding() {
+    const params = new URLSearchParams(window.location.search);
+    if (!params.has("friend") && !params.has("church")) return;
+    const target = `profile.html${window.location.search}`;
+
+    if (localStorage.getItem(SUBSCRIBED_KEY) === "1") {
+        window.location.replace(target);
+        return;
+    }
+
+    const modalElement = document.getElementById("subscribeModal");
+    const form = document.getElementById("subscribeForm");
+    const note = document.createElement("p");
+    note.className = "alert alert-success py-2 small";
+    note.textContent = params.has("friend")
+        ? "You've been invited by a friend. Subscribe to join, then accept their friend request."
+        : "You've been invited to join a church. Subscribe to join, then confirm as a parishioner.";
+    form.querySelector(".modal-body").prepend(note);
+
+    const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+    let subscribedNow = false;
+    modalElement.addEventListener("hidden.bs.modal", () => window.location.replace(target), { once: true });
+    form.addEventListener("submit", () => {
+        const watcher = setInterval(() => {
+            if (localStorage.getItem(SUBSCRIBED_KEY) === "1" && !subscribedNow) {
+                subscribedNow = true;
+                clearInterval(watcher);
+                setTimeout(() => modal.hide(), 1500);
+            }
+        }, 300);
+        setTimeout(() => clearInterval(watcher), 15000);
+    });
+    modal.show();
+}
 function initialiseSubscription() {
     const form = document.getElementById("subscribeForm");
     const feedback = document.getElementById("subscribeFeedback");
@@ -47,6 +85,7 @@ function initialiseSubscription() {
             }
 
             form.reset();
+            localStorage.setItem(SUBSCRIBED_KEY, "1");
             feedback.className = "small mt-3 mb-0 text-success";
             feedback.textContent = result.message;
         } catch (error) {

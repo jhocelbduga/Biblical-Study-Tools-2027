@@ -26,7 +26,7 @@
     function renderHeader() {
         $("profileName").textContent = profile.name || "Your name";
         $("profileBio").textContent = profile.bio || "Add a short bio in Edit profile.";
-        $("profileChurchBadge").lastElementChild.textContent = profile.church.name || "No church added";
+        $("profileChurchBadge").lastElementChild.textContent = profile.church.name ? `${profile.church.name}${profile.church.parishioner ? " · Parishioner" : ""}` : "No church added";
         $("profileFriendsBadge").textContent = `${profile.friends.length} ${profile.friends.length === 1 ? "friend" : "friends"}`;
         PS.renderAvatar($("profileAvatar"), profile);
     }
@@ -172,4 +172,63 @@
     });
 
     renderAll();
-})();
+    $("myQrButton").addEventListener("click", () => {
+        if (!profile.name) {
+            feedback.textContent = "Add your name in Edit profile first, so friends know who is sending the request.";
+            return;
+        }
+        QrShare.show({
+            title: `${profile.name} - friend request`,
+            note: "Ask a friend to scan this code with their phone camera to add you as a friend.",
+            url: QrShare.friendLink(profile)
+        });
+    });
+
+    function handleScannedLink() {
+        const params = new URLSearchParams(window.location.search);
+        const friendParam = params.get("friend");
+        const churchParam = params.get("church");
+        if (!friendParam && !churchParam) return;
+        window.history.replaceState({}, "", window.location.pathname);
+
+        const data = QrShare.decode(friendParam || churchParam);
+        const name = data && QrShare.text(data.n, 120);
+        if (!name) {
+            feedback.textContent = "That QR code isn't valid.";
+            return;
+        }
+        const inviteModal = bootstrap.Modal.getOrCreateInstance($("inviteModal"));
+        const confirm = $("inviteConfirm");
+        const fresh = confirm.cloneNode(true);
+        confirm.replaceWith(fresh);
+
+        if (friendParam) {
+            $("inviteTitle").textContent = "Friend request";
+            $("inviteBody").innerHTML = `<p class="mb-0"><strong>${esc(name)}</strong> would like to be your friend.</p>`;
+            fresh.textContent = "Add friend";
+            fresh.addEventListener("click", () => {
+                const result = PS.addFriend({ id: QrShare.text(data.i, 40), name, via: "qr" });
+                inviteModal.hide();
+                feedback.textContent = result.status === "self" ? "That's your own QR code."
+                    : result.status === "exists" ? `${name} is already your friend.`
+                    : `${name} was added to your friends.`;
+                profile = PS.load();
+                renderAll();
+            });
+        } else {
+            const address = QrShare.text(data.a, 200);
+            $("inviteTitle").textContent = "Join church";
+            $("inviteBody").innerHTML = `<p class="mb-1">Join <strong>${esc(name)}</strong> as a parishioner?</p>${address ? `<p class="small text-body-secondary mb-0">${esc(address)}</p>` : ""}`;
+            fresh.textContent = "Join as parishioner";
+            fresh.addEventListener("click", () => {
+                PS.joinChurch({ name, address, denomination: QrShare.text(data.d, 80) });
+                inviteModal.hide();
+                feedback.textContent = `You're now a parishioner of ${name}.`;
+                profile = PS.load();
+                renderAll();
+            });
+        }
+        inviteModal.show();
+    }
+
+    handleScannedLink();})();

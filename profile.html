@@ -52,6 +52,7 @@
                     <span class="badge text-bg-light border" id="profileFriendsBadge">0 friends</span>
                 </div>
             </div>
+            <button class="btn btn-outline-primary align-self-start" type="button" id="myQrButton" aria-label="Show my QR code"><i class="bi bi-qr-code" aria-hidden="true"></i><span class="ms-1">My QR</span></button>
             <button class="btn btn-primary align-self-start" type="button" id="editProfileButton"><i class="bi bi-pencil me-1" aria-hidden="true"></i>Edit profile</button>
         </section>
         <p class="small text-body-secondary mt-2" id="profileFeedback" role="status" aria-live="polite"></p>
@@ -122,6 +123,16 @@
         </div>
     </div>
 
+    <div class="modal fade" id="inviteModal" tabindex="-1" aria-labelledby="inviteTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header"><h2 class="modal-title h5" id="inviteTitle"></h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+                <div class="modal-body" id="inviteBody"></div>
+                <div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Not now</button><button type="button" class="btn btn-primary" id="inviteConfirm"></button></div>
+            </div>
+        </div>
+    </div>
+
     <footer class="site-footer py-4 mt-auto">
         <div class="container text-center">
             <p class="mb-0 text-body-secondary">© 2027 Biblical Study Tools By Jhocel Duga</p>
@@ -129,7 +140,9 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="qrcode.js"></script>
     <script src="profile-store.js"></script>
+    <script src="qr-share.js"></script>
     <script src="profile.js"></script>
 </body>
 </html>

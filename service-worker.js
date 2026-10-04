@@ -1,4 +1,4 @@
-const CACHE_NAME = "biblical-study-tools-shell-v4";
+const CACHE_NAME = "biblical-study-tools-shell-v5";
 const APP_SHELL = [
     "./",
     "./index.html",
@@ -6,6 +6,10 @@ const APP_SHELL = [
     "./index.js",
     "./discover.html",
     "./discover.js",
+    "./discover-churches.js",
+    "./churches.html",
+    "./churches.js",
+    "./churches-page.js",
     "./install.js",
     "./manifest.webmanifest",
     "./icons/icon-192.png",
@@ -92,7 +96,7 @@ self.addEventListener("fetch", (event) => {
                 .then((response) => {
                     if (response.ok) {
                         const copy = response.clone();
-                        caches.open(CACHE_NAME).then((cache) => cache.put("./index.html", copy));
+                        caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
                     }
                     return response;
                 })

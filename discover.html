@@ -55,6 +55,23 @@
         <div class="row g-3" id="discoverResults"></div>
         <p class="text-center text-body-secondary py-5" id="discoverEmpty" hidden>No verses match your search. Try another word or topic.</p>
 
+        <section class="mt-5" aria-labelledby="churchHeading">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                <h2 class="h3 mb-0" id="churchHeading"><i class="bi bi-geo-alt me-2" aria-hidden="true"></i>Catholic churches near me</h2>
+                <a class="btn btn-outline-primary btn-sm" id="churchSeeAll" href="churches.html" hidden>See all churches <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+            </div>
+            <div class="d-flex flex-column flex-md-row gap-2 mb-3">
+                <button class="btn btn-primary" type="button" id="churchLocate"><i class="bi bi-crosshair me-1" aria-hidden="true"></i>Use my location</button>
+                <form class="input-group" id="churchPlaceForm" role="search">
+                    <label class="visually-hidden" for="churchPlace">City or town</label>
+                    <input type="search" class="form-control" id="churchPlace" placeholder="Or search a city or town" autocomplete="off">
+                    <button class="btn btn-outline-primary" type="submit">Search</button>
+                </form>
+            </div>
+            <p class="text-body-secondary" id="churchStatus" role="status" aria-live="polite">Share your location or search a city to find a parish near you.</p>
+            <div class="row g-3" id="churchPreview"></div>
+        </section>
+
         <section class="discover-cta text-center mt-5 p-4 p-lg-5">
             <h2 class="h3">Ready for more?</h2>
             <p class="mb-3 text-body-secondary">Open the full King James Bible and read any book and chapter.</p>
@@ -72,5 +89,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="discover.js"></script>
+    <script src="churches.js"></script>
+    <script src="discover-churches.js"></script>
 </body>
 </html>

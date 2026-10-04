@@ -6,16 +6,16 @@
     <meta name="description" content="Biblical Study Tools - Daily Bible reading plans, verse generators, scripture study tools and biblical insights.">
     <meta name="keywords" content="Bible Study, Scripture Tools, Reading Plan, Christian Devotional, Daily Verses">
     <meta name="author" content="Biblical Study Tools">
-    <meta name="theme-color" content="#2563eb">
+    <meta name="theme-color" content="#28654f">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Biblical Study Tools">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="Biblical Study Tools | KJV Verse Generator">
-    <meta property="og:description" content="Discover and share an encouraging verse from the King James Version Bible.">
+    <meta property="og:title" content="Biblical Study Tools | Read, reflect, grow">
+    <meta property="og:description" content="Read the King James Version, find a daily verse, and build a Bible reading habit at your own pace.">
     <meta property="og:url" content="https://biblical-study-tools-2027.onrender.com/">
-    <title>Biblical Study Tools</title>
+    <title>Biblical Study Tools | Read, reflect, grow</title>
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -26,21 +26,29 @@
     <header>
         <nav class="navbar navbar-expand-lg site-navbar">
             <div class="container">
-                <a class="navbar-brand fw-bold" href="#home">✝️ Biblical Study Tools</a>
+                <a class="navbar-brand fw-bold" href="#home">
+                    <span class="brand-mark" aria-hidden="true"><i class="bi bi-book-half"></i></span>
+                    Biblical Study Tools
+                </a>
                 <button class="navbar-toggler menu-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavigation" aria-controls="mainNavigation" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse navigation" id="mainNavigation">
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                         <li class="nav-item"><a class="nav-link" href="#home">Home</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#verse-generator">Daily Verse</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#reading-plans">Reading Plans</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#bible-explorer">Bible Explorer</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#statistics">Statistics</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#verse-generator">Daily verse</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#reading-plans">Plans</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#bible-explorer">Explore</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#statistics">Stats</a></li>
                     </ul>
                     <div class="navbar-actions d-flex flex-column flex-lg-row gap-2 ms-lg-3">
                         <button class="btn btn-outline-primary text-nowrap" id="subscribeButton" type="button" data-bs-toggle="modal" data-bs-target="#subscribeModal" aria-label="Subscribe to updates">
                             <i class="bi bi-envelope-plus me-1" aria-hidden="true"></i>Subscribe
+                        </button>
+                        <button class="btn btn-outline-secondary text-nowrap notification-bell" id="notificationsButton" type="button" data-bs-toggle="modal" data-bs-target="#notificationsModal" aria-label="Notifications, 3 unread">
+                            <i class="bi bi-bell" aria-hidden="true"></i>
+                            <span class="notification-badge" id="notificationBadge" aria-hidden="true">3</span>
+                            <span class="visually-hidden" id="notificationCountLabel">3 unread notifications</span>
                         </button>
                         <button class="btn btn-outline-secondary text-nowrap" id="appleInstallButton" type="button" aria-label="Install on Apple">
                             <i class="bi bi-apple me-1" aria-hidden="true"></i>Apple
@@ -94,99 +102,168 @@
         </div>
     </div>
 
-    <main class="container py-4 py-lg-5" id="home">
-        <section class="hero text-center rounded-4 px-3 py-5 px-lg-5 mb-5">
-            <div class="mx-auto hero-content">
-                <p class="eyebrow text-primary fw-semibold text-uppercase mb-2">Your companion in the Word</p>
-                <h1 class="display-4 fw-bold mb-3">Grow Deeper in Scripture</h1>
-                <p class="lead text-body-secondary mb-4">
-                    Read the KJV Bible, discover verses, follow a reading plan, and explore Bible statistics.
-                </p>
-                <div class="d-flex flex-column flex-sm-row justify-content-center gap-3">
-                    <a class="btn btn-primary btn-lg" href="https://jhocelbduga.github.io/The-King-James-Version-of-the-Bible/" target="_blank" rel="noopener noreferrer">Start Reading</a>
-                    <button class="btn btn-outline-secondary btn-lg random-verse-btn" type="button">Random Verse</button>
+    <div class="modal fade notification-modal" id="notificationsModal" tabindex="-1" aria-labelledby="notificationScreenTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="d-flex align-items-center gap-2">
+                        <button class="btn btn-outline-secondary btn-sm" id="notificationBackButton" type="button" aria-label="Back to notifications" hidden>
+                            <i class="bi bi-arrow-left" aria-hidden="true"></i>
+                        </button>
+                        <div>
+                            <p class="eyebrow text-primary fw-semibold text-uppercase mb-1">Stay up to date</p>
+                            <h2 class="modal-title h4 fw-bold mb-0" id="notificationScreenTitle">Notifications</h2>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <button class="btn btn-outline-secondary btn-sm" id="notificationSettingsButton" type="button" aria-label="Notification settings">
+                            <i class="bi bi-gear" aria-hidden="true"></i>
+                        </button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <section id="notificationInboxView" aria-labelledby="notificationScreenTitle">
+                        <div class="d-flex justify-content-between align-items-center gap-3 mb-3">
+                            <p class="text-body-secondary small mb-0">Updates from Biblical Study Tools</p>
+                            <button class="btn btn-link btn-sm p-0 text-nowrap" id="markNotificationsReadButton" type="button">Mark all as read</button>
+                        </div>
+                        <div class="notification-list" id="notificationList"></div>
+                        <p class="small text-body-secondary mt-3 mb-0" id="notificationInboxFeedback" role="status" aria-live="polite"></p>
+                    </section>
+
+                    <section id="notificationSettingsView" aria-labelledby="notificationScreenTitle" hidden>
+                        <p class="text-body-secondary">Choose which updates you want to receive.</p>
+                        <div class="d-grid gap-3">
+                            <button class="notification-category" type="button" data-notification-screen="email">
+                                <span class="notification-category-icon"><i class="bi bi-envelope" aria-hidden="true"></i></span>
+                                <span class="flex-grow-1 text-start">
+                                    <span class="d-block fw-semibold">Email notifications</span>
+                                    <span class="small text-body-secondary">Verse and Bible news updates</span>
+                                </span>
+                                <i class="bi bi-chevron-right text-body-secondary" aria-hidden="true"></i>
+                            </button>
+                            <button class="notification-category" type="button" data-notification-screen="push">
+                                <span class="notification-category-icon"><i class="bi bi-phone" aria-hidden="true"></i></span>
+                                <span class="flex-grow-1 text-start">
+                                    <span class="d-block fw-semibold">Push notifications</span>
+                                    <span class="small text-body-secondary">Friend and activity updates</span>
+                                </span>
+                                <i class="bi bi-chevron-right text-body-secondary" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                        <p class="notification-disclaimer small text-body-secondary mt-3 mb-0">These preferences are saved in this browser. Sending email and push notifications requires those delivery services to be connected.</p>
+                    </section>
+
+                    <section id="emailNotificationView" aria-labelledby="notificationScreenTitle" hidden>
+                        <p class="text-body-secondary">Choose the email updates you would like to receive.</p>
+                        <div class="notification-preference-list" id="emailNotificationPreferences"></div>
+                    </section>
+
+                    <section id="pushNotificationView" aria-labelledby="notificationScreenTitle" hidden>
+                        <p class="text-body-secondary">Choose which activity updates you would like to receive as push notifications.</p>
+                        <div class="notification-preference-list" id="pushNotificationPreferences"></div>
+                    </section>
+                    <p class="small text-body-secondary mt-3 mb-0" id="notificationSettingsFeedback" role="status" aria-live="polite"></p>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <main class="container py-4 py-lg-5" id="home">
+        <section class="home-hero mb-5" aria-labelledby="homeTitle">
+            <div class="home-hero-copy">
+                <p class="eyebrow text-uppercase fw-semibold mb-3"><i class="bi bi-sunrise me-2" aria-hidden="true"></i>A moment in the Word</p>
+                <h1 class="home-hero-title fw-bold mb-3" id="homeTitle">Make room for what matters.</h1>
+                <p class="home-hero-description mb-4">A little time in Scripture can bring a fresh perspective to your day. Start wherever you are.</p>
+                <div class="d-flex flex-column flex-sm-row gap-2">
+                    <a class="btn btn-primary btn-lg" href="https://jhocelbduga.github.io/The-King-James-Version-of-the-Bible/" target="_blank" rel="noopener noreferrer">
+                        <i class="bi bi-book me-2" aria-hidden="true"></i>Open the Bible
+                    </a>
+                    <a class="btn btn-outline-secondary btn-lg" href="#reading-plans">
+                        Find a reading plan<i class="bi bi-arrow-down-right ms-2" aria-hidden="true"></i>
+                    </a>
+                </div>
+                <p class="home-hero-note small mb-0 mt-4"><i class="bi bi-check-circle me-2" aria-hidden="true"></i>King James Version · Read at your own pace</p>
+            </div>
+            <article class="verse-of-day-card" aria-labelledby="verseOfDayTitle">
+                <div class="verse-card-decoration" aria-hidden="true"><i class="bi bi-sun"></i></div>
+                <div class="verse-of-day-content">
+                    <p class="verse-card-label text-uppercase fw-semibold mb-3" id="verseOfDayTitle"><i class="bi bi-bookmark-heart me-2" aria-hidden="true"></i>A verse to carry with you</p>
+                    <blockquote class="verse-of-day-quote mb-3">“Thy word is a lamp unto my feet, and a light unto my path.”</blockquote>
+                    <p class="verse-of-day-reference mb-4">Psalm 119:105 <span>· KJV</span></p>
+                    <button class="btn btn-light verse-card-action random-verse-btn" type="button">
+                        <i class="bi bi-shuffle me-2" aria-hidden="true"></i>Explore a verse
+                    </button>
+                </div>
+            </article>
         </section>
 
-        <section class="study-tools py-5" aria-label="Study tools">
-            <div class="text-center mb-5">
-                <span class="badge bg-primary-subtle text-primary mb-2">Biblical Resources</span>
-                <h2 class="display-6 fw-bold">Study Tools &amp; Resources</h2>
-                <p class="lead text-secondary mx-auto" style="max-width: 700px;">
-                    Read, follow a plan, and explore Bible statistics with tools for your study journey.
-                </p>
+        <section class="study-tools py-4 py-lg-5" aria-label="Study tools">
+            <div class="section-heading d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3 mb-4">
+                <div>
+                    <p class="eyebrow text-primary text-uppercase fw-semibold mb-2">Find your next step</p>
+                    <h2 class="display-6 fw-bold mb-2">Explore the Bible, your way.</h2>
+                    <p class="text-body-secondary mb-0">Simple tools to help you read, reflect, and keep going.</p>
+                </div>
+                <a class="section-more-link" href="https://jhocelbduga.github.io/The-King-James-Version-of-the-Bible/" target="_blank" rel="noopener noreferrer">
+                    Browse all books <i class="bi bi-arrow-up-right ms-1" aria-hidden="true"></i>
+                </a>
             </div>
 
-            <div class="row g-4">
+            <div class="row g-3 g-lg-4">
                 <div class="col-12 col-md-6 col-xl-3">
-                    <article class="card study-card border-0 h-100 shadow-sm" id="daily-reading">
+                    <article class="card study-card study-card-reading border-0 h-100" id="daily-reading">
                         <div class="card-body d-flex flex-column p-4">
-                            <div class="icon-circle bg-primary-subtle mb-3" aria-hidden="true">
-                                <i class="bi bi-book text-primary"></i>
+                            <div class="tool-icon-wrap tool-icon-reading mb-4" aria-hidden="true">
+                                <i class="bi bi-book-half"></i>
                             </div>
-                            <h3 class="h5 fw-semibold">Daily Reading</h3>
-                            <p class="text-secondary">Follow a scripture journey with daily readings and devotional guidance.</p>
-                            <ul class="list-unstyled small mb-4">
-                                <li>✓ Browse Bible books</li>
-                                <li>✓ Choose a chapter</li>
-                                <li>✓ Read KJV verses</li>
-                            </ul>
-                            <a class="btn btn-primary mt-auto" href="https://jhocelbduga.github.io/The-King-James-Version-of-the-Bible/" target="_blank" rel="noopener noreferrer">Open KJV Bible Reader</a>
+                            <p class="tool-card-kicker text-uppercase fw-semibold mb-2">Read</p>
+                            <h3 class="h5 fw-bold">Open Scripture</h3>
+                            <p class="text-body-secondary mb-4">Find a book, choose a chapter, and spend time with the King James Bible.</p>
+                            <a class="btn btn-outline-primary mt-auto" href="https://jhocelbduga.github.io/The-King-James-Version-of-the-Bible/" target="_blank" rel="noopener noreferrer">Start reading<i class="bi bi-arrow-right ms-2" aria-hidden="true"></i></a>
                         </div>
                     </article>
                 </div>
 
                 <div class="col-12 col-md-6 col-xl-3">
-                    <article class="card study-card border-0 h-100 shadow-sm" id="verse-generator">
+                    <article class="card study-card study-card-verse border-0 h-100" id="verse-generator">
                         <div class="card-body d-flex flex-column p-4">
-                            <div class="icon-circle bg-success-subtle mb-3" aria-hidden="true">
-                                <i class="bi bi-shuffle text-success"></i>
+                            <div class="tool-icon-wrap tool-icon-verse mb-4" aria-hidden="true">
+                                <i class="bi bi-stars"></i>
                             </div>
-                            <h3 class="h5 fw-semibold">Verse Generator</h3>
-                            <p class="text-secondary">Discover an inspirational scripture passage for devotion and reflection.</p>
-                            <ul class="list-unstyled small mb-4">
-                                <li>✓ Random verses</li>
-                                <li>Topic filters planned</li>
-                                <li>Copy and share verses on Facebook</li>
-                            </ul>
-                            <button class="btn btn-primary random-verse-btn mt-auto" type="button">Generate Verse</button>
+                            <p class="tool-card-kicker text-uppercase fw-semibold mb-2">Reflect</p>
+                            <h3 class="h5 fw-bold">A verse for today</h3>
+                            <p class="text-body-secondary mb-4">Pause for a moment of Scripture and find a passage to reflect on or share.</p>
+                            <button class="btn btn-outline-primary random-verse-btn mt-auto" type="button">Find a verse<i class="bi bi-arrow-right ms-2" aria-hidden="true"></i></button>
                         </div>
                     </article>
                 </div>
 
                 <div class="col-12 col-md-6 col-xl-3">
-                    <article class="card study-card border-0 h-100 shadow-sm" id="reading-plans">
+                    <article class="card study-card study-card-plans border-0 h-100" id="reading-plans">
                         <div class="card-body d-flex flex-column p-4">
-                            <div class="icon-circle bg-warning-subtle mb-3" aria-hidden="true">
-                                <i class="bi bi-calendar-check text-warning"></i>
+                            <div class="tool-icon-wrap tool-icon-plans mb-4" aria-hidden="true">
+                                <i class="bi bi-calendar2-week"></i>
                             </div>
-                            <h3 class="h5 fw-semibold">Reading Plans</h3>
-                            <p class="text-secondary">Choose a 365-day Bible plan or a 14-day topical study, and keep track of your progress.</p>
-                            <ul class="list-unstyled small mb-4">
-                                <li>Canonical and chronological plans</li>
-                                <li>Daily passage references</li>
-                                <li>Progress saved on this device</li>
-                            </ul>
-                            <button class="btn btn-primary mt-auto" id="chooseReadingPlan" type="button" data-bs-toggle="modal" data-bs-target="#readingPlanModal">Choose a Plan</button>
+                            <p class="tool-card-kicker text-uppercase fw-semibold mb-2">Build a habit</p>
+                            <h3 class="h5 fw-bold">Reading plans</h3>
+                            <p class="text-body-secondary mb-4">Choose a guided journey and keep track of your progress day by day.</p>
+                            <button class="btn btn-outline-primary mt-auto" id="chooseReadingPlan" type="button" data-bs-toggle="modal" data-bs-target="#readingPlanModal">Explore plans<i class="bi bi-arrow-right ms-2" aria-hidden="true"></i></button>
                         </div>
                     </article>
                 </div>
 
                 <div class="col-12 col-md-6 col-xl-3">
-                    <article class="card study-card border-0 h-100 shadow-sm" id="bible-explorer">
+                    <article class="card study-card study-card-explore border-0 h-100" id="bible-explorer">
                         <div class="card-body d-flex flex-column p-4">
-                            <div class="icon-circle bg-info-subtle mb-3" aria-hidden="true">
-                                <i class="bi bi-bar-chart-line text-info"></i>
+                            <div class="tool-icon-wrap tool-icon-explore mb-4" aria-hidden="true">
+                                <i class="bi bi-compass"></i>
                             </div>
-                            <h3 class="h5 fw-semibold" id="statistics">Bible Analytics</h3>
-                            <p class="text-secondary">Explore books, chapters, verse counts, reading history, and biblical statistics.</p>
-                            <ul class="list-unstyled small mb-4">
-                                <li>66 books and chapter counts</li>
-                                <li>Verified verse totals</li>
-                                <li>Reading-plan history</li>
-                            </ul>
-                            <button class="btn btn-primary mt-auto" id="openAnalytics" type="button">Explore Analytics</button>
+                            <p class="tool-card-kicker text-uppercase fw-semibold mb-2">Discover</p>
+                            <h3 class="h5 fw-bold" id="statistics">Explore the Bible</h3>
+                            <p class="text-body-secondary mb-4">Browse book and chapter details, verse totals, and your reading history.</p>
+                            <button class="btn btn-outline-primary mt-auto" id="openAnalytics" type="button">Explore insights<i class="bi bi-arrow-right ms-2" aria-hidden="true"></i></button>
                         </div>
                     </article>
                 </div>

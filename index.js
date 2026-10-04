@@ -13,6 +13,7 @@ function initialiseApp() {
     initialiseReadingPlans();
     initialiseBibleAnalytics();
     initialiseSubscription();
+    initialiseNotifications();
 
     console.log("Biblical Study Tools Loaded");
 }
@@ -57,6 +58,240 @@ function initialiseSubscription() {
         } finally {
             submitButton.disabled = false;
         }
+    });
+}
+
+function initialiseNotifications() {
+    const notifications = [
+        {
+            id: "welcome",
+            icon: "bi-stars",
+            title: "Welcome to Biblical Study Tools",
+            message: "Explore the KJV Bible reader, daily verses, reading plans, and study tools.",
+            category: "Getting started"
+        },
+        {
+            id: "daily-verse",
+            icon: "bi-book",
+            title: "A verse for reflection",
+            message: "“The LORD is my shepherd; I shall not want.” — Psalm 23:1",
+            category: "Daily verse"
+        },
+        {
+            id: "reading-plans",
+            icon: "bi-calendar-check",
+            title: "Build a reading habit",
+            message: "Choose a plan to keep track of your Bible reading progress.",
+            category: "Study tools"
+        }
+    ];
+    const preferenceGroups = {
+        email: [
+            { id: "verseOfTheDayText", label: "Verse of the day (text)" },
+            { id: "verseOfTheDayImage", label: "Verse of the day (image)" },
+            { id: "bibleNews", label: "News from the Bible" }
+        ],
+        push: [
+            { id: "friendRequests", label: "Friend requests" },
+            { id: "friendsActivity", label: "Friends’ activity" },
+            { id: "activityComments", label: "Comments on my activity" },
+            { id: "activityLikes", label: "Likes on my activity" },
+            { id: "contactJoins", label: "When a contact joins" },
+            { id: "friendEncouragement", label: "Encouragement from friends" }
+        ]
+    };
+    const readIdsKey = "notificationReadIds";
+    const preferencesKey = "notificationPreferences";
+    const inboxView = document.getElementById("notificationInboxView");
+    const settingsView = document.getElementById("notificationSettingsView");
+    const emailView = document.getElementById("emailNotificationView");
+    const pushView = document.getElementById("pushNotificationView");
+    const screenTitle = document.getElementById("notificationScreenTitle");
+    const backButton = document.getElementById("notificationBackButton");
+    const settingsButton = document.getElementById("notificationSettingsButton");
+    const badge = document.getElementById("notificationBadge");
+    const countLabel = document.getElementById("notificationCountLabel");
+    const inboxFeedback = document.getElementById("notificationInboxFeedback");
+    const settingsFeedback = document.getElementById("notificationSettingsFeedback");
+    const readIds = loadStoredArray(readIdsKey).filter(id => notifications.some(notification => notification.id === id));
+    const preferences = loadStoredObject(preferencesKey);
+    let currentScreen = "inbox";
+
+    function loadStoredArray(key) {
+        try {
+            const stored = localStorage.getItem(key);
+            if (stored === null) return [];
+            const value = JSON.parse(stored);
+            if (Array.isArray(value) && value.every(item => typeof item === "string")) return value;
+            throw new TypeError(`Saved ${key} must be an array of strings.`);
+        } catch (error) {
+            console.error(`Unable to load ${key}:`, error);
+            return [];
+        }
+    }
+
+    function loadStoredObject(key) {
+        try {
+            const stored = localStorage.getItem(key);
+            if (stored === null) return {};
+            const value = JSON.parse(stored);
+            if (value && typeof value === "object" && !Array.isArray(value)) return value;
+            throw new TypeError(`Saved ${key} must be an object.`);
+        } catch (error) {
+            console.error(`Unable to load ${key}:`, error);
+            return {};
+        }
+    }
+
+    function saveState(key, value, feedbackElement) {
+        try {
+            localStorage.setItem(key, JSON.stringify(value));
+            feedbackElement.textContent = "Saved on this device.";
+            feedbackElement.className = "small mt-3 mb-0 text-success";
+            return true;
+        } catch (error) {
+            feedbackElement.textContent = "Could not save this change in your browser.";
+            feedbackElement.className = "small mt-3 mb-0 text-danger";
+            console.error(`Unable to save ${key}:`, error);
+            return false;
+        }
+    }
+
+    function renderInbox() {
+        const list = document.getElementById("notificationList");
+        const unreadCount = notifications.filter(notification => !readIds.includes(notification.id)).length;
+        list.replaceChildren();
+
+        notifications.forEach((notification) => {
+            const isRead = readIds.includes(notification.id);
+            const item = document.createElement("button");
+            item.className = `notification-item${isRead ? "" : " is-unread"}`;
+            item.type = "button";
+            item.setAttribute("aria-label", `${notification.title}. ${notification.message}${isRead ? "" : ". Unread"}`);
+
+            const icon = document.createElement("span");
+            icon.className = "notification-item-icon";
+            icon.setAttribute("aria-hidden", "true");
+            const iconGraphic = document.createElement("i");
+            iconGraphic.className = `bi ${notification.icon}`;
+            icon.append(iconGraphic);
+
+            const content = document.createElement("span");
+            content.className = "notification-item-content";
+            const title = document.createElement("span");
+            title.className = "notification-item-title";
+            title.textContent = notification.title;
+            const message = document.createElement("span");
+            message.className = "notification-item-message";
+            message.textContent = notification.message;
+            const category = document.createElement("span");
+            category.className = "notification-item-category";
+            category.textContent = notification.category;
+            content.append(title, message, category);
+
+            const unreadMarker = document.createElement("span");
+            unreadMarker.className = "notification-unread-marker";
+            unreadMarker.setAttribute("aria-hidden", "true");
+            item.append(icon, content, unreadMarker);
+            item.addEventListener("click", () => {
+                if (isRead) return;
+                const updatedReadIds = [...readIds, notification.id];
+                if (saveState(readIdsKey, updatedReadIds, inboxFeedback)) {
+                    readIds.splice(0, readIds.length, ...updatedReadIds);
+                    renderInbox();
+                }
+            });
+            list.append(item);
+        });
+
+        badge.textContent = String(unreadCount);
+        badge.hidden = unreadCount === 0;
+        countLabel.textContent = unreadCount === 0
+            ? "No unread notifications"
+            : `${unreadCount} unread notification${unreadCount === 1 ? "" : "s"}`;
+        document.getElementById("notificationsButton").setAttribute(
+            "aria-label",
+            unreadCount === 0 ? "Notifications, none unread" : `Notifications, ${unreadCount} unread`
+        );
+        document.getElementById("markNotificationsReadButton").disabled = unreadCount === 0;
+    }
+
+    function renderPreferences(groupName) {
+        const container = document.getElementById(`${groupName}NotificationPreferences`);
+        container.replaceChildren();
+
+        preferenceGroups[groupName].forEach((preference) => {
+            const row = document.createElement("div");
+            row.className = "notification-preference";
+            const label = document.createElement("label");
+            label.className = "form-check-label fw-medium";
+            label.htmlFor = `${groupName}-${preference.id}`;
+            label.textContent = preference.label;
+            const toggleLabel = document.createElement("span");
+            toggleLabel.className = "form-check form-switch mb-0";
+            const toggle = document.createElement("input");
+            toggle.className = "form-check-input";
+            toggle.type = "checkbox";
+            toggle.role = "switch";
+            toggle.id = `${groupName}-${preference.id}`;
+            toggle.checked = preferences[preference.id] === true;
+            toggle.setAttribute("aria-label", `${preference.label}, ${groupName} notification`);
+            toggle.addEventListener("change", () => {
+                const updatedPreferences = { ...preferences, [preference.id]: toggle.checked };
+                if (saveState(preferencesKey, updatedPreferences, settingsFeedback)) {
+                    Object.assign(preferences, updatedPreferences);
+                } else {
+                    toggle.checked = preferences[preference.id] === true;
+                }
+            });
+            toggleLabel.append(toggle);
+            row.append(label, toggleLabel);
+            container.append(row);
+        });
+    }
+
+    function showScreen(screen) {
+        currentScreen = screen;
+        inboxView.hidden = screen !== "inbox";
+        settingsView.hidden = screen !== "settings";
+        emailView.hidden = screen !== "email";
+        pushView.hidden = screen !== "push";
+        backButton.hidden = screen === "inbox";
+        backButton.setAttribute(
+            "aria-label",
+            screen === "settings" ? "Back to notifications" : "Back to notification settings"
+        );
+        settingsButton.hidden = screen !== "inbox";
+        screenTitle.textContent = {
+            inbox: "Notifications",
+            settings: "Notification settings",
+            email: "Email notifications",
+            push: "Push notifications"
+        }[screen];
+        settingsFeedback.textContent = "";
+    }
+
+    renderInbox();
+    renderPreferences("email");
+    renderPreferences("push");
+
+    settingsButton.addEventListener("click", () => showScreen("settings"));
+    backButton.addEventListener("click", () => {
+        showScreen(currentScreen === "email" || currentScreen === "push" ? "settings" : "inbox");
+    });
+    document.querySelectorAll("[data-notification-screen]").forEach((button) => {
+        button.addEventListener("click", () => showScreen(button.dataset.notificationScreen));
+    });
+    document.getElementById("markNotificationsReadButton").addEventListener("click", () => {
+        const updatedReadIds = notifications.map(notification => notification.id);
+        if (saveState(readIdsKey, updatedReadIds, inboxFeedback)) {
+            readIds.splice(0, readIds.length, ...updatedReadIds);
+            renderInbox();
+        }
+    });
+    document.getElementById("notificationsModal").addEventListener("hidden.bs.modal", () => {
+        showScreen("inbox");
+        inboxFeedback.textContent = "";
     });
 }
 

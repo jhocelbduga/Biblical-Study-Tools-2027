@@ -754,3 +754,10 @@ body {
 .discover-card blockquote { font-family: Georgia, serif; line-height: 1.6; }
 .discover-tag { background: var(--brand-soft); color: var(--brand-color); font-weight: 600; }
 .discover-cta { background: var(--brand-soft); border-radius: 1.25rem; }
+
+.church-details { display: grid; gap: .45rem; }
+.church-detail { display: flex; gap: .5rem; align-items: flex-start; line-height: 1.4; }
+.church-detail > i { color: var(--brand-color); margin-top: .1rem; }
+
+.place-suggest { position: absolute; top: 100%; left: 0; right: 0; z-index: 1050; max-height: 260px; overflow-y: auto; margin-top: 2px; }
+.place-suggest .list-group-item { text-align: left; font-size: .9rem; }

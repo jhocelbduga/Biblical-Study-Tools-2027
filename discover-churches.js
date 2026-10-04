@@ -18,8 +18,9 @@
             if (!churches.length) {
                 status.textContent = `No Catholic churches found within 10 km of ${location.label}. Try "See all churches" for a wider search.`;
             } else {
-                status.textContent = `${churches.length} Catholic church${churches.length === 1 ? "" : "es"} near ${location.label}`;
+                status.textContent = `${CF.plural(churches.length, "Catholic church", "Catholic churches")} near ${location.label}`;
                 preview.innerHTML = churches.slice(0, 3).map(CF.churchCard).join("");
+                CF.fillMissingAddresses(preview);
             }
             seeAll.hidden = false;
         } catch (error) {
@@ -29,6 +30,8 @@
 
     async function run(task) {
         locateButton.disabled = true;
+        preview.innerHTML = "";
+        seeAll.hidden = true;
         status.textContent = "Finding your location…";
         try {
             await load(await task());
@@ -46,6 +49,7 @@
         if (query) run(() => CF.geocode(query));
     });
 
+    CF.attachPlaceSuggest(placeInput, (place) => run(async () => place));
     const saved = CF.getSavedLocation();
     if (saved) load(saved);
 })();

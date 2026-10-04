@@ -43,10 +43,31 @@
         sessionStorage.setItem(STORAGE_KEY, JSON.stringify(location));
     }
 
-    function browserPosition(options) {
-        return new Promise((resolve, reject) => navigator.geolocation.getCurrentPosition(resolve, reject, options));
+    // Keeps listening briefly so a coarse first reading (Wi-Fi/cell) can sharpen into a real GPS fix.
+    function browserPosition({ goodEnough = 100, maxWait = 12000 } = {}) {
+        return new Promise((resolve, reject) => {
+            let best = null;
+            let watchId;
+            const finish = () => {
+                navigator.geolocation.clearWatch(watchId);
+                clearTimeout(timer);
+                if (best) resolve(best); else reject(lastError || new Error("timeout"));
+            };
+            let lastError = null;
+            const timer = setTimeout(finish, maxWait);
+            watchId = navigator.geolocation.watchPosition(
+                (position) => {
+                    if (!best || position.coords.accuracy < best.coords.accuracy) best = position;
+                    if (position.coords.accuracy <= goodEnough) finish();
+                },
+                (error) => {
+                    lastError = error;
+                    if (error.code === 1 || !best) finish();
+                },
+                { enableHighAccuracy: true, timeout: maxWait, maximumAge: 0 }
+            );
+        });
     }
-
     async function ipPosition() {
         const providers = [
             async (signal) => {
@@ -64,7 +85,7 @@
         const timer = setTimeout(() => controller.abort(), 4000);
         try {
             const found = await Promise.any(providers.map((p) => p(controller.signal)));
-            return { lat: found.lat, lon: found.lon, label: `${found.city || "your area"} (approximate)` };
+            return { lat: found.lat, lon: found.lon, label: `${found.city || "your area"} (approximate, from your network)` };
         } finally {
             clearTimeout(timer);
             controller.abort();
@@ -72,26 +93,25 @@
     }
 
     async function getCurrentPosition() {
-        const approximate = ipPosition().catch(() => null);
         if (!navigator.geolocation) {
-            const fallback = await approximate;
-            if (fallback) return fallback;
-            throw new Error("Location is not supported on this device. Search a city instead.");
+            try { return await ipPosition(); } catch { throw new Error("Location is not supported on this device. Search a city instead."); }
         }
         let denied = false;
-        const precise = browserPosition({ enableHighAccuracy: false, timeout: 6000, maximumAge: 300000 })
-            .then((position) => ({ lat: position.coords.latitude, lon: position.coords.longitude, label: "your location" }))
-            .catch((error) => { denied = error.code === 1; return null; });
-        const grace = new Promise((resolve) => setTimeout(() => resolve("late"), 2000));
-        const first = await Promise.race([precise, grace]);
-        if (first && first !== "late") return first;
-        const fallback = await approximate;
-        if (fallback) return fallback;
-        const result = await precise;
-        if (result) return result;
-        throw new Error(denied
-            ? "Location access is blocked. Allow it in your browser's site settings, or search a city instead."
-            : "We couldn't determine your location. Search a city instead.");
+        try {
+            const position = await browserPosition();
+            const meters = Math.round(position.coords.accuracy);
+            return { lat: position.coords.latitude, lon: position.coords.longitude, label: meters > 1000 ? "your location (low accuracy)" : "your location", accuracy: meters };
+        } catch (error) {
+            denied = error && error.code === 1;
+        }
+        if (denied) {
+            throw new Error("Location access is blocked. Allow it in your browser's site settings for an accurate result, or search a city instead.");
+        }
+        try {
+            return await ipPosition();
+        } catch {
+            throw new Error("We couldn't determine your location. Turn on GPS/location services or search a city instead.");
+        }
     }
     async function suggestPlaces(query) {
         const response = await fetch(`${GEOCODE_URL}?format=jsonv2&limit=5&addressdetails=0&q=${encodeURIComponent(query)}`, { headers: { Accept: "application/json" } });

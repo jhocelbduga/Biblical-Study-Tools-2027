@@ -298,7 +298,7 @@ function serveStatic(request, response, pathname, searchParams) {
     }
 
     response.writeHead(200, {
-        "Cache-Control": path.extname(filePath) === ".html" ? "no-cache" : "public, max-age=300",
+        "Cache-Control": [".html", ".js", ".css", ".json"].includes(path.extname(filePath)) ? "no-cache" : "public, max-age=300",
         "Content-Type": MIME_TYPES.get(path.extname(filePath)) || "application/octet-stream",
         "X-Content-Type-Options": "nosniff"
     });

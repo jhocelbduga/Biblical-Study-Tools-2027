@@ -2,7 +2,8 @@
     const OVERPASS_URLS = [
         "https://overpass-api.de/api/interpreter",
         "https://overpass.kumi.systems/api/interpreter",
-        "https://overpass.private.coffee/api/interpreter"
+        "https://overpass.private.coffee/api/interpreter",
+        "https://maps.mail.ru/osm/tools/overpass/api/interpreter"
     ];
     const GEOCODE_URL = "https://nominatim.openstreetmap.org/search";
     const REVERSE_URL = "https://nominatim.openstreetmap.org/reverse";
@@ -165,22 +166,27 @@
     }
 
     async function runOverpass(query) {
-        for (const endpoint of OVERPASS_URLS) {
-            try {
-                const response = await fetch(endpoint, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                    body: `data=${encodeURIComponent(query)}`,
-                    signal: AbortSignal.timeout(35000)
-                });
-                if (response.ok) return await response.json();
-            } catch {
-                // try the next mirror
-            }
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 15000);
+        const attempts = OVERPASS_URLS.map(async (endpoint) => {
+            const response = await fetch(endpoint, {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: `data=${encodeURIComponent(query)}`,
+                signal: controller.signal
+            });
+            if (!response.ok) throw new Error(`Overpass ${response.status}`);
+            return response.json();
+        });
+        try {
+            return await Promise.any(attempts);
+        } catch {
+            throw new Error("The church directory is busy. Please try again in a moment.");
+        } finally {
+            clearTimeout(timer);
+            controller.abort();
         }
-        throw new Error("The church directory is busy. Please try again in a moment.");
     }
-
     function cleanUrl(value) {
         if (!value) return "";
         const url = /^https?:\/\//i.test(value) ? value : `https://${value}`;
@@ -258,6 +264,46 @@
         return kept;
     }
 
+    // Nominatim answers quickly when every Overpass mirror is overloaded; it returns fewer results.
+    async function nominatimChurches(location, catholicOnly, radiusMeters) {
+        const dLat = radiusMeters / 111000;
+        const dLon = dLat / Math.max(0.2, Math.cos(location.lat * Math.PI / 180));
+        const box = [location.lon - dLon, location.lat + dLat, location.lon + dLon, location.lat - dLat].map((n) => n.toFixed(5)).join(",");
+        const terms = catholicOnly ? ["catholic church", "parish church", "cathedral", "shrine"] : ["church", "chapel", "cathedral"];
+        const seen = new Map();
+        await Promise.all(terms.map(async (term) => {
+            try {
+                const response = await fetch(`${GEOCODE_URL}?format=jsonv2&limit=40&bounded=1&addressdetails=0&extratags=1&namedetails=1&viewbox=${box}&q=${encodeURIComponent(term)}`, { headers: { Accept: "application/json" }, signal: AbortSignal.timeout(10000) });
+                if (!response.ok) return;
+                for (const r of await response.json()) {
+                    if (seen.has(r.place_id)) continue;
+                    const name = r.name || (r.namedetails && r.namedetails.name) || "";
+                    const extra = r.extratags || {};
+                    const rest = r.display_name.split(",").slice(name ? 1 : 0, 5).map((s) => s.trim()).filter(Boolean).join(", ");
+                    seen.set(r.place_id, {
+                        type: r.osm_type || "node",
+                        id: r.osm_id,
+                        lat: Number(r.lat),
+                        lon: Number(r.lon),
+                        tags: {
+                            name,
+                            denomination: extra.denomination || "",
+                            "addr:full": rest,
+                            opening_hours: extra.opening_hours,
+                            service_times: extra.service_times,
+                            phone: extra.phone || extra["contact:phone"],
+                            website: extra.website || extra["contact:website"],
+                            email: extra.email || extra["contact:email"],
+                            wikipedia: extra.wikipedia
+                        }
+                    });
+                }
+            } catch {
+                // ignore a single failed term
+            }
+        }));
+        return [...seen.values()];
+    }
     async function fetchChurches(location, { catholicOnly, radiusMeters }) {
         const cacheKey = `${CACHE_PREFIX}${location.lat.toFixed(3)},${location.lon.toFixed(3)},${catholicOnly},${radiusMeters}`;
         let elements = null;
@@ -267,9 +313,15 @@
             elements = null;
         }
         if (!elements) {
-            const data = await runOverpass(buildQuery(location, catholicOnly, radiusMeters));
-            elements = data.elements;
+            let fromOverpass = true;
             try {
+                elements = (await runOverpass(buildQuery(location, catholicOnly, radiusMeters))).elements;
+            } catch (error) {
+                elements = await nominatimChurches(location, catholicOnly, radiusMeters);
+                fromOverpass = false;
+                if (!elements.length) throw error;
+            }
+            if (fromOverpass) try {
                 sessionStorage.setItem(cacheKey, JSON.stringify(elements));
             } catch {
                 // storage full; caching is optional

@@ -1,4 +1,4 @@
-const CACHE_NAME = "biblical-study-tools-shell-v6";
+const CACHE_NAME = "biblical-study-tools-shell-v7";
 const APP_SHELL = [
     "./",
     "./index.html",
@@ -105,6 +105,20 @@ self.addEventListener("fetch", (event) => {
         return;
     }
 
+    if (url.origin === self.location.origin && /\.(js|css|json)$/.test(url.pathname)) {
+        event.respondWith(
+            fetch(request, { cache: "no-cache" })
+                .then((response) => {
+                    if (response.ok) {
+                        const copy = response.clone();
+                        caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+                    }
+                    return response;
+                })
+                .catch(() => caches.match(request))
+        );
+        return;
+    }
     event.respondWith(caches.match(request).then(async (cached) => {
         if (cached) return cached;
 

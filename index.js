@@ -444,6 +444,7 @@ function initialiseVerseGenerator() {
     }
 
     function recordVerseShare(verse, activity) {
+        window.ActivityEvents?.emit("verse_shared", { body: activity, reference: verse.reference, text: verse.text });
         if (!window.ProfileStore) return;
         window.ProfileStore.addPost(`“${verse.text}”`, verse.reference);
         window.ProfileStore.addActivity(activity);
@@ -497,6 +498,17 @@ function initialiseVerseGenerator() {
         setShareOptionsVisible(shareOptions.hidden);
         if (!shareOptions.hidden) document.getElementById("copyVerseLink").focus();
     });
+    ["postVerseToFeed", "reflectVerseToFeed"].forEach(id => {
+        document.getElementById(id).addEventListener("click", () => {
+            if (!currentVerse) return;
+            modal.hide();
+            window.dispatchEvent(new CustomEvent("bst-feed-compose", {
+                detail: { type: id === "postVerseToFeed" ? "verse_shared" : "reflection",
+                    reference: currentVerse.reference, text: currentVerse.text,
+                    body: id === "postVerseToFeed" ? `Shared ${currentVerse.reference}` : "" }
+            }));
+        });
+    });
     document.getElementById("closeVerseShareOptions").addEventListener("click", () => {
         setShareOptionsVisible(false);
         shareButton.focus();
@@ -504,6 +516,7 @@ function initialiseVerseGenerator() {
     document.getElementById("copyVerseLink").addEventListener("click", async () => {
         try {
             await navigator.clipboard.writeText(shareUrlInput.value);
+            recordVerseShare(currentVerse, `Copied a sharing link for ${currentVerse.reference}`);
             feedback.textContent = "Verse link copied. Paste it into your message.";
         } catch (error) {
             shareUrlInput.focus();
@@ -560,6 +573,7 @@ function initialiseVerseGenerator() {
         const copyText = `${currentVerse.text} — ${currentVerse.reference}`;
         try {
             await navigator.clipboard.writeText(copyText);
+            recordVerseShare(currentVerse, `Copied ${currentVerse.reference} for sharing`);
             feedback.textContent = "Verse copied. Paste it into your post or message.";
         } catch (error) {
             feedback.textContent = "Could not copy automatically. Select the verse text and copy it manually.";
@@ -1150,6 +1164,14 @@ function initialiseReadingPlans() {
         renderCatalog();
         if (selectedPlanId) showPlanDetails(selectedPlanId);
         feedback.textContent = "Reading progress saved. Analytics updated.";
+        const previouslyRead = new Set(completedReadingIndices(plan, progress, dayNumber));
+        const addedReadings = indices.filter(index => !previouslyRead.has(index));
+        if (addedReadings.length) {
+            window.ActivityEvents?.emit("completion", {
+                body: `Completed ${plan.title}, day ${dayNumber}: ${addedReadings.map(index =>
+                    plan.days[dayNumber - 1].readings[index]).join("; ")}`
+            });
+        }
         window.dispatchEvent(new CustomEvent("reading-plan-progress-updated", { detail: state }));
     }
 

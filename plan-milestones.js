@@ -43,6 +43,9 @@
                 try {
                     localStorage.setItem(key, JSON.stringify(next));
                     earned = next;
+                    if (announce) newlyEarned.forEach(goal => {
+                        window.ActivityEvents?.emit("achievement", { body: goal.title });
+                    });
                     if (announce) feedback.textContent = `Achievement unlocked: ${newlyEarned.map(goal => goal.title).join("; ")}!`;
                     window.dispatchEvent(new CustomEvent("reading-achievements-updated"));
                 } catch (error) {

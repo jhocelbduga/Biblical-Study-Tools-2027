@@ -286,6 +286,64 @@
             </div>
         </section>
 
+        <section class="mt-4 mb-5" id="homeFeed" aria-labelledby="homeFeedTitle">
+            <div class="d-flex justify-content-between align-items-center gap-2 mb-3">
+                <h2 class="h3 mb-0" id="homeFeedTitle">Home Feed</h2>
+                <button class="btn btn-outline-primary btn-sm" id="feedRefresh" type="button">Refresh</button>
+            </div>
+            <p id="feedStatus" role="status" aria-live="polite">Connecting to the shared feed...</p>
+            <div class="d-flex gap-2 mb-3">
+                <a id="feedSignIn" class="btn btn-primary" href="account.html">Sign in to participate</a>
+                <button id="feedReconnect" class="btn btn-outline-secondary" type="button">Reconnect</button>
+            </div>
+            <div id="feedSignedIn" hidden>
+                <details class="card p-3 mb-3">
+                    <summary class="fw-semibold">Feed profile, privacy and account friends</summary>
+                    <form id="feedSettings" class="mt-3">
+                        <label class="form-label" for="feedName">Public display name</label>
+                        <input class="form-control mb-3" id="feedName" maxlength="80" required>
+                        <label class="form-label" for="feedDefaultAudience">Audience for automatic activities</label>
+                        <select class="form-select mb-3" id="feedDefaultAudience">
+                            <option value="private">Private</option><option value="friends">Friends Only</option><option value="public">Public</option>
+                        </select>
+                        <p class="small">New accounts default to Private. Reading completions, newly earned milestones and verse-sharing actions are logged automatically while signed in. External sharing logs that the sharing app was opened, not confirmation of delivery. Old local activities are not uploaded.</p>
+                        <button class="btn btn-outline-primary" type="submit">Save feed settings</button>
+                    </form>
+                    <p class="small mt-3">Your account friend code: <code class="feed-account-code" id="feedAccountCode"></code></p>
+                    <form id="feedFriendRequest" class="d-flex flex-wrap gap-2 mb-3">
+                        <label class="visually-hidden" for="feedFriendCode">Friend's account code</label>
+                        <input class="form-control" id="feedFriendCode" placeholder="Friend's account UUID" required pattern="[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}">
+                        <button class="btn btn-outline-primary" type="submit">Send friend request</button>
+                    </form>
+                    <p class="small">These accepted account friendships enforce Friends Only. Device-local Discover friends are separate and do not grant access.</p>
+                    <div id="feedFriends"></div>
+                </details>
+                <form id="feedComposer" class="card p-3 p-md-4 mb-3">
+                    <h3 class="h5" id="feedComposeTitle">Create a post</h3>
+                    <p class="feed-content" id="feedDraftVerse"></p>
+                    <label class="form-label" for="feedBody">Post or reflection</label>
+                    <textarea class="form-control mb-3" id="feedBody" rows="3" maxlength="4000" required></textarea>
+                    <label class="form-label" for="feedAudience">Activity audience</label>
+                    <select class="form-select mb-3" id="feedAudience">
+                        <option value="private">Private</option><option value="friends">Friends Only</option><option value="public">Public</option>
+                    </select>
+                    <label class="form-check mb-3">
+                        <input class="form-check-input" id="feedCommentsEnabled" type="checkbox" checked>
+                        <span class="form-check-label">Enable comments</span>
+                    </label>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-primary" id="feedPublish" type="submit">Publish activity</button>
+                        <button class="btn btn-outline-secondary" id="feedCancelDraft" type="button">Clear draft</button>
+                    </div>
+                </form>
+            </div>
+            <div id="feedRetries"></div>
+            <div id="feedLinkedActivity"></div>
+            <div id="feedTimeline" aria-label="Activity timeline"></div>
+            <button class="btn btn-outline-primary" id="feedMore" type="button" hidden>Older activities</button>
+            <p class="small text-body-secondary mt-3">Newest activities first. Live updates require internet and a configured Supabase database. Audience changes also refresh every 10 seconds while this page is visible. Shared links never bypass privacy checks.</p>
+        </section>
+
         <section class="card border-0 shadow-sm p-4 mt-4" aria-labelledby="planMilestonesTitle">
             <h2 class="h4" id="planMilestonesTitle">Reading milestones</h2>
             <p id="planMilestoneTotals"></p>
@@ -518,6 +576,8 @@
                     <button class="btn btn-outline-primary" id="anotherVerseButton" type="button">
                         <i class="bi bi-shuffle me-1" aria-hidden="true"></i>Another verse
                     </button>
+                    <button class="btn btn-outline-primary" id="postVerseToFeed" type="button">Post to Home Feed</button>
+                    <button class="btn btn-outline-primary" id="reflectVerseToFeed" type="button">Write reflection</button>
                     <button class="btn btn-primary" id="shareVerseButton" type="button" aria-expanded="false" aria-controls="verseShareOptions">
                         <i class="bi bi-share me-1" aria-hidden="true"></i>Share
                     </button>
@@ -596,10 +656,12 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="profile-store.js"></script>
+    <script src="activity-events.js"></script>
     <script src="plan-milestones.js"></script>
     <script src="index.js"></script>
     <script src="verse-design.js"></script>
     <script src="install.js"></script>
     <script type="module" src="header-state.js"></script>
+    <script type="module" src="feed.js"></script>
 </body>
 </html>

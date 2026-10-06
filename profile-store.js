@@ -53,7 +53,7 @@
         const profile = load();
         profile.posts.unshift({ id: uid(), text, reference, at: new Date().toISOString() });
         profile.posts = profile.posts.slice(0, MAX_ITEMS);
-        save(profile);
+        return save(profile);
     }
 
     function initials(name) {

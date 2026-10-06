@@ -64,7 +64,7 @@
                     <div class="d-flex justify-content-between align-items-center gap-2 mt-1">
                         <small class="text-body-secondary">${when(p.at)}</small>
                         <span class="d-flex gap-2">
-                            <a class="btn btn-sm btn-outline-primary" href="${share}" target="_blank" rel="noopener"><i class="bi bi-facebook me-1" aria-hidden="true"></i>Share</a>
+                            <a class="btn btn-sm btn-outline-primary" href="${share}" data-share-post="${esc(p.id)}" target="_blank" rel="noopener"><i class="bi bi-facebook me-1" aria-hidden="true"></i>Share</a>
                             <button class="btn btn-sm btn-outline-danger" type="button" data-delete-post="${esc(p.id)}" aria-label="Delete post"><i class="bi bi-trash" aria-hidden="true"></i></button>
                         </span>
                     </div></li>`;
@@ -136,14 +136,33 @@
         event.preventDefault();
         const text = $("postText").value.trim();
         if (!text) return;
-        PS.addPost(text);
+        if (!PS.addPost(text)) {
+            $("profileFeedStatus").textContent = "Post could not be saved. Check browser storage and try again.";
+            console.error("Unable to save profile post.");
+            return;
+        }
         PS.addActivity("Shared a post");
         profile = PS.load();
         $("postText").value = "";
         renderAll();
+        window.ActivityEvents?.emit("post", {
+            body: text, audience: $("profilePostAudience").value,
+            commentsEnabled: $("profilePostComments").checked
+        });
     });
 
     $("postList").addEventListener("click", (event) => {
+        const share = event.target.closest("[data-share-post]");
+        if (share) {
+            const post = profile.posts.find(item => item.id === share.dataset.sharePost);
+            if (post?.reference) {
+                window.ActivityEvents?.emit("verse_shared", {
+                    body: `Opened Facebook sharing for ${post.reference}`,
+                    reference: post.reference, text: post.text
+                });
+            }
+            return;
+        }
         const button = event.target.closest("[data-delete-post]");
         if (!button) return;
         profile.posts = profile.posts.filter((p) => p.id !== button.dataset.deletePost);

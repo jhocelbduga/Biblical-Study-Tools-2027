@@ -1016,3 +1016,14 @@ body {
 
 .qr-box { width: min(260px, 100%); background: #fff; padding: .5rem; border: 1px solid #e3e8e5; border-radius: 12px; }
 .qr-box svg { display: block; width: 100%; height: auto; }
+/* Feed content uses preserved line breaks without interpreting user HTML. */
+.feed-content { white-space: pre-wrap; overflow-wrap: anywhere; }
+.feed-card { max-width: 850px; margin-inline: auto; }
+.feed-avatar { display: grid; place-items: center; width: 42px; height: 42px; flex-shrink: 0; border-radius: 50%; background: #464feb; color: #fff; font-weight: 700; }
+.feed-comment { border-left: 3px solid #e6e6e6; padding: .5rem 1rem; margin-bottom: .75rem; overflow-wrap: anywhere; }
+.feed-comment time { display: block; }
+.feed-account-code { overflow-wrap: anywhere; }
+#homeFeed a { text-decoration: none; color: #464feb; }
+#homeFeed a.btn-primary { color: #fff; }
+#homeFeed tr th, #homeFeed tr td { border: 1px solid #e6e6e6; }
+#homeFeed tr th { background-color: #f5f5f5; }

@@ -1,4 +1,4 @@
-const CACHE_NAME = "biblical-study-tools-shell-v24";
+const CACHE_NAME = "biblical-study-tools-shell-v25";
 const APP_SHELL = [
     "./",
     "./index.html",
@@ -6,6 +6,10 @@ const APP_SHELL = [
     "./index.js",
     "./verse-design.js",
     "./plan-milestones.js",
+    "./activity-events.js",
+    "./feed.js",
+    "./feed-publisher.js",
+    "./profile-feed.js",
     "./account.html",
     "./account.js",
     "./supabase-client.js",

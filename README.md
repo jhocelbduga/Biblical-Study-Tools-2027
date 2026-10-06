@@ -139,6 +139,25 @@ information; they are not a verified membership directory.
 Videos are linked, not hosted or embedded. The application uses its own catalog
 presentation rather than redistributing provider thumbnails or video content.
 
+### Shared Home Feed and account friendships
+
+- See a social-style, chronological activity timeline with live updates.
+- Automatically log newly earned plan milestones, new passage completions and
+  verse-sharing actions while signed in, plus new Profile posts with their
+  selected audience.
+- Post verses, personal reflections and updates with Public, Friends Only or
+  Private audiences enforced by Supabase row-level authorization.
+- Send and accept account-code friend requests; these are separate from local
+  Discover contacts.
+- Like/unlike, comment, copy public activity links, and reflect on shared verses.
+- Owners can change audiences and disable new comments without hiding old ones.
+- New accounts default automatic activities to Private. Failed publications
+  show retry controls; there is no historical backfill or persistent offline outbox.
+
+Configure the schema and Realtime using [FEED-SETUP.md](./FEED-SETUP.md).
+The separate KJV reader's activities remain device-local. Hosted Supabase
+configuration is required before shared feed operations can work.
+
 ### Shared communities
 
 - Browse public communities by name, description, or city.
@@ -182,7 +201,8 @@ configuration, the account page shows an explicit unavailable message and
 disables account operations. See [ACCOUNT-SETUP.md](./ACCOUNT-SETUP.md).
 
 Accounts do not currently synchronize local profiles, friends, reading plans,
-or achievements.
+or achievements. The shared feed records new signed-in actions separately;
+account friendships and the feed display name are stored in Supabase.
 
 ### Newsletter subscriptions and notifications
 
@@ -241,7 +261,7 @@ do not currently combine or synchronize their statistics.
 | Backend | Node.js 20 or later, built-in HTTP and filesystem modules |
 | Authentication | Supabase JavaScript SDK, email/password authentication, PKCE |
 | Newsletter | Mailchimp server-side integration |
-| Persistence | Browser localStorage and service-worker Cache Storage |
+| Persistence | Browser localStorage/Cache Storage; Supabase shared feed and communities |
 | Mobile/offline support | Web app manifest and service worker |
 | Tests | Node.js built-in test runner and assertions |
 | Hosting | Render and GitHub Pages |
@@ -256,7 +276,9 @@ The Node server serves the static application and handles its integration
 endpoints. Most study interactions run in the browser and save their state
 locally. Authentication requests are handled by Supabase; newsletter requests
 are forwarded to Mailchimp by the server. Shared communities and memberships
-use authenticated Supabase RPCs and database records.
+use authenticated Supabase RPCs and database records. Shared feed posts,
+account friendships, comments, likes and activity events use restricted RPCs,
+row-level authorization and Supabase Realtime.
 
 ```text
 Browser / installed PWA
@@ -284,6 +306,13 @@ Biblical-Study-Tools-2027/
   styles.css                 Shared styling and responsive layouts
   verse-design.js            Daily Verse appearance preferences
   plan-milestones.js         Plan achievement tracking
+  activity-events.js         Extensible browser activity event registry
+  feed-publisher.js          Shared publication RPC adapter
+  feed.js                   Home timeline, composer, engagements and friends
+  profile-feed.js            Profile-post publishing and retry feedback
+  feed.sql                  Feed schema, privacy policies and event triggers
+  FEED-SETUP.md              Setup, limitations and integration checks
+  feed-database-check.js    Disposable PostgreSQL behavior verification
   discover.html              Scripture and resource discovery
   discover.js                Discovery interactions
   discover-friends.js        Contacts, local friends, and invitations
@@ -410,7 +439,13 @@ npm run check
 Tests cover reading-plan confirmation and rollback, analytics updates, video
 catalog and watch routing, local friends and invitations, account behavior with
 mocked services, navigation destinations, card-design persistence, milestone
-thresholds, and notification updates.
+thresholds, notification updates, activity publication, feed retries,
+account switching, comment settings and local Profile-post events.
+
+The disposable PostgreSQL validator checks actual feed grants, privacy,
+friendships, event triggers and engagement operations. See
+[FEED-SETUP.md](./FEED-SETUP.md) for its separate tools setup and hosted
+Supabase verification checklist.
 
 Real Supabase email delivery, registration, recovery, and SMTP behavior require
 a configured project and manual end-to-end verification. Mocked account tests
@@ -471,8 +506,13 @@ cache version so installed applications can receive the new shell.
 
 - **Local data:** profiles, friends, plan progress, verse-card preferences,
   achievements, and notification read states are stored in the current browser.
-- **No cloud synchronization:** signing in does not upload or link these records
-  to a Supabase account.
+- **No historical cloud synchronization:** signing in does not upload existing
+  local records. New signed-in activities are published to the shared feed with
+  the saved audience (Private by default).
+- **Shared feed:** account display names and account codes are public; post
+  audiences, accepted friendships and owner comment settings are database
+  enforced. Restricted items may remain onscreen until the next 10-second
+  authorization refresh; previously seen/copied content cannot be recalled.
 - **Separate applications:** the KJV reader and Biblical Study Tools maintain
   different progress stores. Origin, browser, and device differences also
   separate local data.
@@ -491,8 +531,8 @@ cache version so installed applications can receive the new shell.
   background push alerts or automated achievement emails.
 - **Scripture statistics:** standard KJV enumeration is used for analytics;
   verse numbering can vary by edition.
-- **Authorization:** any future user-data backend needs explicit authorization
-  and appropriate row-level security before exposing database access.
+- **Authorization:** communities and feed use restricted RPCs and row-level
+  authorization. Configure and verify their schemas before exposing them.
 
 ## Accessibility and responsive design
 
@@ -512,7 +552,7 @@ Potential enhancements, not claims of currently available functionality:
 - Secure account-linked progress and profile synchronization.
 - Export/import and backup tools for local reading records.
 - Expanded devotional and study-resource catalogs.
-- Verified friend requests and church communities with a backend.
+- Church-member identity verification and richer account-friend discovery.
 - Community moderation, editing, owner transfer, and richer membership tools.
 - Optional push notifications with explicit permission and delivery services.
 - Additional reading goals and richer longitudinal analytics.

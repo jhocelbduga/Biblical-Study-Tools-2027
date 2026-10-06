@@ -408,27 +408,114 @@ function initialiseVerseGenerator() {
     const verseText = document.getElementById("generatedVerseText");
     const verseReference = document.getElementById("generatedVerseReference");
     const feedback = document.getElementById("verseShareFeedback");
-    const shareButton = document.getElementById("shareVerseFacebook");
+    const shareButton = document.getElementById("shareVerseButton");
+    const shareOptions = document.getElementById("verseShareOptions");
+    const shareLinks = document.getElementById("verseShareLinks");
+    const shareUrlInput = document.getElementById("verseShareUrl");
+    const deviceShareButton = document.getElementById("shareVerseDevice");
     let currentVerse;
+
+    function setShareOptionsVisible(visible) {
+        shareOptions.hidden = !visible;
+        shareButton.setAttribute("aria-expanded", String(visible));
+    }
+
+    function createShareData(verse) {
+        const url = new URL(VERSE_GENERATOR_PUBLIC_URL);
+        url.searchParams.set("verse", verse.id);
+        return {
+            title: `${verse.reference} (KJV)`,
+            text: `${verse.text} — ${verse.reference} (KJV)`,
+            url: url.toString()
+        };
+    }
+
+    function recordVerseShare(verse, activity) {
+        if (!window.ProfileStore) return;
+        window.ProfileStore.addPost(`“${verse.text}”`, verse.reference);
+        window.ProfileStore.addActivity(activity);
+    }
 
     function renderVerse(verse) {
         currentVerse = verse;
         verseText.textContent = `“${verse.text}”`;
         verseReference.textContent = verse.reference;
         feedback.textContent = "";
+        setShareOptionsVisible(false);
 
-        const shareUrl = new URL(VERSE_GENERATOR_PUBLIC_URL);
-        shareUrl.searchParams.set("verse", verse.id);
-        const quote = `${verse.text} — ${verse.reference}`;
-        shareButton.href =
-            `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl.toString())}` +
-            `&quote=${encodeURIComponent(quote)}`;
+        const data = createShareData(verse);
+        shareUrlInput.value = data.url;
+        shareLinks.querySelectorAll("a").forEach(link => link.remove());
+        const imageUrl = new URL(`images/verses/${verse.id}.png`, VERSE_GENERATOR_PUBLIC_URL).toString();
+        const destinations = [
+            { name: "Email", base: "mailto:", params: { subject: data.title, body: `${data.text}\n\n${data.url}` }, icon: "envelope" },
+            { name: "Facebook", base: "https://www.facebook.com/sharer/sharer.php", params: { u: data.url, quote: data.text }, icon: "facebook" },
+            { name: "X", base: "https://twitter.com/intent/tweet", params: { text: data.text, url: data.url }, icon: "twitter-x" },
+            { name: "LinkedIn", base: "https://www.linkedin.com/sharing/share-offsite/", params: { url: data.url }, icon: "linkedin" },
+            { name: "WhatsApp", base: "https://api.whatsapp.com/send", params: { text: `${data.text}\n${data.url}` }, icon: "whatsapp" },
+            { name: "Pinterest", base: "https://www.pinterest.com/pin/create/button/", params: { url: data.url, media: imageUrl, description: data.text }, icon: "pinterest" },
+            { name: "Tumblr", base: "https://www.tumblr.com/share/link", params: { url: data.url, name: data.title, description: data.text }, icon: "share" },
+            { name: "LINE", base: "https://social-plugins.line.me/lineit/share", params: { url: data.url, text: data.text }, icon: "chat-dots" }
+        ];
+        destinations.forEach(({ name, base, params, icon }) => {
+            const url = new URL(base);
+            Object.entries(params).forEach(([key, value]) => url.searchParams.set(key, value));
+            const link = document.createElement("a");
+            link.className = "btn btn-outline-secondary";
+            link.href = url.toString();
+            if (name !== "Email") {
+                link.target = "_blank";
+                link.rel = "noopener noreferrer";
+            }
+            const symbol = document.createElement("i");
+            symbol.className = `bi bi-${icon} me-1`;
+            symbol.setAttribute("aria-hidden", "true");
+            link.append(symbol, name);
+            link.addEventListener("click", () => {
+                recordVerseShare(verse, `Opened ${name} sharing for ${verse.reference}`);
+                feedback.textContent = `${name} sharing opened. Finish sending in ${name}.`;
+            });
+            shareLinks.appendChild(link);
+        });
+        deviceShareButton.hidden = typeof navigator.share !== "function";
     }
 
     shareButton.addEventListener("click", () => {
-        if (!currentVerse || !window.ProfileStore) return;
-        window.ProfileStore.addPost(`“${currentVerse.text}”`, currentVerse.reference);
-        window.ProfileStore.addActivity(`Shared ${currentVerse.reference} on Facebook`);
+        setShareOptionsVisible(shareOptions.hidden);
+        if (!shareOptions.hidden) document.getElementById("copyVerseLink").focus();
+    });
+    document.getElementById("closeVerseShareOptions").addEventListener("click", () => {
+        setShareOptionsVisible(false);
+        shareButton.focus();
+    });
+    document.getElementById("copyVerseLink").addEventListener("click", async () => {
+        try {
+            await navigator.clipboard.writeText(shareUrlInput.value);
+            feedback.textContent = "Verse link copied. Paste it into your message.";
+        } catch (error) {
+            shareUrlInput.focus();
+            shareUrlInput.select();
+            feedback.textContent = "Could not copy automatically. Copy the selected verse link manually.";
+            console.error("Unable to copy verse link:", error);
+        }
+    });
+    deviceShareButton.addEventListener("click", async () => {
+        const verse = currentVerse;
+        deviceShareButton.disabled = true;
+        try {
+            await navigator.share(createShareData(verse));
+            recordVerseShare(verse, `Shared ${verse.reference} using device sharing`);
+            feedback.textContent = "Verse sent to your selected sharing app.";
+        } catch (error) {
+            if (error.name === "AbortError") {
+                feedback.textContent = "Sharing canceled.";
+            } else {
+                feedback.textContent = "Device sharing could not open. Choose a sharing option or copy the link.";
+                console.error("Unable to share verse:", error);
+            }
+        } finally {
+            deviceShareButton.disabled = false;
+        }
     });
 
     function showVerse(verse, updateAddress = true) {
@@ -604,19 +691,49 @@ const READING_PLANS = {
     annual: {
         title: "Read the Bible in a Year",
         description: "All 1,189 chapters of the 66-book Bible in canonical order.",
+        category: "Bible",
+        tags: ["whole bible", "old testament", "new testament", "year"],
         days: createChapterPlan(BIBLE_BOOKS, 365)
     },
     chronological: {
         title: "Chronological Bible",
-        description: "All 1,189 chapters in an approximate book-level historical order.",
+        description: "Read all 1,189 chapters in an approximate historical order, grouped by book.",
+        category: "Bible",
+        tags: ["whole bible", "history", "year"],
         days: createChapterPlan(
             CHRONOLOGICAL_BOOK_ORDER.map(name => BIBLE_BOOKS.find(book => book.name === name)),
             365
         )
     },
+    newTestament: {
+        title: "New Testament in 90 Days",
+        description: "Read the 260 chapters of the New Testament at a steady pace over 90 days.",
+        category: "New Testament",
+        tags: ["jesus", "gospels", "letters", "90 days"],
+        days: createChapterPlan(BIBLE_BOOKS.filter(book => book.testament === "NT"), 90)
+    },
+    psalms: {
+        title: "30 Days in Psalms",
+        description: "Spend a month in the Psalms with a handful of chapters each day.",
+        category: "Psalms",
+        tags: ["worship", "prayer", "wisdom", "30 days"],
+        days: createChapterPlan([BIBLE_BOOKS.find(book => book.name === "Psalms")], 30)
+    },
+    gospels: {
+        title: "The Gospels",
+        description: "Journey through Matthew, Mark, Luke, and John in 90 days.",
+        category: "New Testament",
+        tags: ["jesus", "gospels", "90 days"],
+        days: createChapterPlan(
+            ["Matthew", "Mark", "Luke", "John"].map(name => BIBLE_BOOKS.find(book => book.name === name)),
+            90
+        )
+    },
     topical: {
         title: "Foundations of Faith",
         description: "A 14-day guided topical study through key passages across Scripture.",
+        category: "Topical",
+        tags: ["faith", "prayer", "wisdom", "hope", "14 days"],
         days: TOPICAL_READINGS
     }
 };
@@ -669,6 +786,15 @@ function createEmptyReadingPlanState() {
 function initialiseReadingPlans() {
     const dashboard = document.getElementById("activeReadingPlan");
     const feedback = document.getElementById("readingPlanFeedback");
+    const catalog = document.getElementById("readingPlanCatalog");
+    const detailTitle = document.getElementById("readingPlanDetailTitle");
+    const detailDescription = document.getElementById("readingPlanDetailDescription");
+    const detailMeta = document.getElementById("readingPlanDetailMeta");
+    const preview = document.getElementById("readingPlanPreview");
+    const startPlanButton = document.getElementById("startReadingPlan");
+    const catalogFeedback = document.getElementById("readingPlanCatalogFeedback");
+    const daySelect = document.getElementById("readingDaySelect");
+    let selectedPlanId = null;
     let storageWarning = "";
     let state = createEmptyReadingPlanState();
 
@@ -697,6 +823,7 @@ function initialiseReadingPlans() {
                 if (!Number.isInteger(progress.currentDay) || progress.currentDay < 1 || progress.currentDay > plan.days.length) {
                     progress.currentDay = firstIncompleteDay(plan, progress.completedDays);
                 }
+                if (typeof progress.startedAt !== "string") progress.startedAt = "";
             });
         }
     } catch (error) {
@@ -751,6 +878,17 @@ function initialiseReadingPlans() {
             completed ? "Mark day incomplete" : "Mark day complete";
         document.getElementById("previousReadingDay").disabled = dayNumber === 1;
         document.getElementById("nextReadingDay").disabled = dayNumber === plan.days.length;
+        document.getElementById("pauseReadingPlan").textContent = "Pause plan";
+
+        daySelect.replaceChildren();
+        plan.days.forEach((planDay, index) => {
+            const number = index + 1;
+            const option = document.createElement("option");
+            option.value = String(number);
+            option.textContent = `Day ${number}${progress.completedDays.includes(number) ? " · Complete" : ""}`;
+            option.selected = number === dayNumber;
+            daySelect.appendChild(option);
+        });
 
         const passageList = document.getElementById("readingPassages");
         passageList.replaceChildren();
@@ -763,21 +901,149 @@ function initialiseReadingPlans() {
         if (storageWarning) feedback.textContent = storageWarning;
     }
 
-    document.querySelectorAll(".reading-plan-option").forEach(button => {
-        button.addEventListener("click", () => {
-            const planId = button.dataset.planId;
-            if (!Object.hasOwn(READING_PLANS, planId)) return;
+    function planLengthLabel(days) {
+        return `${days} ${days === 1 ? "day" : "days"}`;
+    }
 
-            state.activePlanId = planId;
-            if (!state.plans[planId]) {
-                state.plans[planId] = { currentDay: 1, completedDays: [], completedAt: {} };
-            }
-
-            renderPlan();
-            saveState();
-            bootstrap.Modal.getOrCreateInstance(document.getElementById("readingPlanModal")).hide();
-            dashboard.scrollIntoView({ behavior: "smooth", block: "start" });
+    function renderCatalog() {
+        const query = document.getElementById("readingPlanSearch").value.trim().toLocaleLowerCase();
+        const category = document.getElementById("readingPlanCategory").value;
+        const length = document.getElementById("readingPlanLength").value;
+        const matches = Object.entries(READING_PLANS).filter(([, plan]) => {
+            const searchableText = `${plan.title} ${plan.description} ${plan.category} ${plan.tags.join(" ")}`.toLocaleLowerCase();
+            const matchesLength = length === "all" ||
+                (length === "short" && plan.days.length <= 30) ||
+                (length === "medium" && plan.days.length > 30 && plan.days.length <= 90) ||
+                (length === "long" && plan.days.length > 90);
+            return searchableText.includes(query) &&
+                (category === "all" || plan.category === category) &&
+                matchesLength;
         });
+
+        document.getElementById("readingPlanResultCount").textContent =
+            `${matches.length} ${matches.length === 1 ? "plan" : "plans"}`;
+        catalog.replaceChildren();
+        if (matches.length === 0) {
+            const empty = document.createElement("p");
+            empty.className = "text-body-secondary border rounded-3 p-3 mb-0";
+            empty.textContent = "No plans match those filters. Try another topic or length.";
+            catalog.appendChild(empty);
+            return;
+        }
+
+        matches.forEach(([planId, plan]) => {
+            const progress = state.plans[planId];
+            const item = document.createElement("article");
+            item.className = `reading-plan-card${selectedPlanId === planId ? " is-selected" : ""}`;
+
+            const heading = document.createElement("div");
+            heading.className = "d-flex justify-content-between align-items-start gap-2";
+            const title = document.createElement("h3");
+            title.className = "h6 fw-bold mb-1";
+            title.textContent = plan.title;
+            const label = document.createElement("span");
+            label.className = "badge text-bg-light";
+            label.textContent = progress
+                ? `${progress.completedDays.length}/${plan.days.length} days`
+                : planLengthLabel(plan.days.length);
+            heading.append(title, label);
+
+            const summary = document.createElement("p");
+            summary.className = "small text-body-secondary mb-2";
+            summary.textContent = plan.description;
+            const footer = document.createElement("div");
+            footer.className = "d-flex justify-content-between align-items-center gap-2";
+            const categoryLabel = document.createElement("span");
+            categoryLabel.className = "small text-body-secondary";
+            categoryLabel.textContent = plan.category;
+            const selectButton = document.createElement("button");
+            selectButton.className = "btn btn-sm btn-outline-primary";
+            selectButton.type = "button";
+            selectButton.textContent = "View details";
+            selectButton.setAttribute("aria-pressed", String(selectedPlanId === planId));
+            selectButton.addEventListener("click", () => showPlanDetails(planId));
+            footer.append(categoryLabel, selectButton);
+            item.append(heading, summary, footer);
+            catalog.appendChild(item);
+        });
+    }
+
+    function showPlanDetails(planId) {
+        const plan = READING_PLANS[planId];
+        if (!plan) return;
+        selectedPlanId = planId;
+        detailTitle.textContent = plan.title;
+        detailDescription.textContent = plan.description;
+        detailMeta.replaceChildren();
+        [plan.category, planLengthLabel(plan.days.length), "King James Version"].forEach(text => {
+            const badge = document.createElement("span");
+            badge.className = "badge rounded-pill text-bg-light";
+            badge.textContent = text;
+            detailMeta.appendChild(badge);
+        });
+        preview.replaceChildren();
+        plan.days.slice(0, 3).forEach((day, index) => {
+            const item = document.createElement("li");
+            item.className = "mb-2";
+            item.textContent = `Day ${index + 1}: ${day.title === "Daily reading" ? day.readings.join(", ") : `${day.title} — ${day.readings.join(", ")}`}`;
+            preview.appendChild(item);
+        });
+        if (plan.days.length > 3) {
+            const more = document.createElement("li");
+            more.className = "small text-body-secondary";
+            more.textContent = `Plus ${plan.days.length - 3} more days`;
+            preview.appendChild(more);
+        }
+
+        const progress = state.plans[planId];
+        startPlanButton.disabled = false;
+        startPlanButton.textContent = state.activePlanId === planId
+            ? "Continue current plan"
+            : progress ? "Resume this plan" : "Start this plan";
+        catalogFeedback.textContent = progress
+            ? `${progress.completedDays.length} of ${plan.days.length} days complete. Your progress is saved on this device.`
+            : "Your progress will be saved on this device.";
+        renderCatalog();
+    }
+
+    function activatePlan(planId) {
+        if (!Object.hasOwn(READING_PLANS, planId)) return;
+        state.activePlanId = planId;
+        if (!state.plans[planId]) {
+            state.plans[planId] = {
+                currentDay: 1,
+                completedDays: [],
+                completedAt: {},
+                startedAt: getLocalDateKey(new Date())
+            };
+        }
+        renderPlan();
+        renderCatalog();
+        saveState();
+        bootstrap.Modal.getOrCreateInstance(document.getElementById("readingPlanModal")).hide();
+        dashboard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    document.getElementById("readingPlanSearch").addEventListener("input", renderCatalog);
+    document.getElementById("readingPlanCategory").addEventListener("change", renderCatalog);
+    document.getElementById("readingPlanLength").addEventListener("change", renderCatalog);
+    document.getElementById("readingPlanModal").addEventListener("show.bs.modal", renderCatalog);
+    startPlanButton.addEventListener("click", () => {
+        if (selectedPlanId) activatePlan(selectedPlanId);
+    });
+    document.getElementById("pauseReadingPlan").addEventListener("click", () => {
+        if (!state.activePlanId) return;
+        state.activePlanId = null;
+        renderPlan();
+        renderCatalog();
+        saveState();
+        feedback.textContent = "Plan paused. Your progress is saved; resume it from Browse plans.";
+    });
+    daySelect.addEventListener("change", () => {
+        if (!state.activePlanId) return;
+        state.plans[state.activePlanId].currentDay = Number(daySelect.value);
+        renderPlan();
+        saveState();
     });
 
     document.getElementById("previousReadingDay").addEventListener("click", () => {
@@ -799,6 +1065,7 @@ function initialiseReadingPlans() {
     });
 
     document.getElementById("completeReadingDay").addEventListener("click", () => {
+        if (!state.activePlanId) return;
         const plan = READING_PLANS[state.activePlanId];
         const progress = state.plans[state.activePlanId];
         const dayNumber = progress.currentDay;
@@ -819,6 +1086,7 @@ function initialiseReadingPlans() {
     });
 
     renderPlan();
+    renderCatalog();
     if (storageWarning) feedback.textContent = storageWarning;
 }
 

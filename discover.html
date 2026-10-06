@@ -26,6 +26,7 @@
                 <div class="collapse navbar-collapse navigation" id="mainNavigation">
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                         <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                        <li class="nav-item"><a class="nav-link" href="videos.html">Videos</a></li>
                         <li class="nav-item"><a class="nav-link" href="index.html#verse-generator">Daily verse</a></li>
                         <li class="nav-item"><a class="nav-link" href="index.html#reading-plans">Plans</a></li>
                     </ul>
@@ -53,6 +54,15 @@
         <p class="text-body-secondary" id="discoverCount" role="status" aria-live="polite"></p>
         <div class="row g-3" id="discoverResults"></div>
         <p class="text-center text-body-secondary py-5" id="discoverEmpty" hidden>No verses match your search. Try another word or topic.</p>
+
+        <section class="mt-5" aria-labelledby="discoverVideoTitle">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                <h2 class="h3 mb-0" id="discoverVideoTitle"><i class="bi bi-play-circle me-2" aria-hidden="true"></i>Watch and learn</h2>
+                <a class="btn btn-outline-primary btn-sm" href="videos.html">See all videos <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+            </div>
+            <p class="text-body-secondary">Discover Bible stories and teaching from trusted video providers. Watch on their official Bible App pages.</p>
+            <div class="row g-3" id="videoPreview"></div>
+        </section>
 
         <section class="mt-5" aria-labelledby="churchHeading">
             <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
@@ -88,6 +98,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="discover.js"></script>
+    <script src="videos-data.js"></script>
+    <script src="videos.js"></script>
     <script src="qrcode.js"></script>
     <script src="profile-store.js"></script>
     <script src="qr-share.js"></script>

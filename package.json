@@ -8,6 +8,7 @@
   },
   "scripts": {
     "start": "node server.js",
-    "check": "node --check server.js && node --check index.js && node --check install.js"
+    "test": "node --test reading-plans.test.js videos.test.js",
+    "check": "node --check server.js && node --check index.js && node --check install.js && node --check videos-data.js && node --check videos.js && node --check service-worker.js"
   }
 }

@@ -539,12 +539,84 @@ body {
     scroll-margin-top: 2rem;
 }
 
+.video-card {
+    overflow: hidden;
+    border-color: var(--surface-border);
+    background: var(--surface-background);
+    border-radius: 1rem;
+}
+
+.video-art {
+    aspect-ratio: 16 / 9;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    color: #fff;
+    background: linear-gradient(135deg, #28654f, #15392c);
+}
+
+.video-art > i {
+    font-size: 3rem;
+}
+
+.video-art-bibleproject { background: linear-gradient(135deg, #315677, #1f3449); }
+.video-art-spoken { background: linear-gradient(135deg, #765538, #483421); }
+.video-art-streetlights { background: linear-gradient(135deg, #604776, #352243); }
+
+.video-featured {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 2rem;
+    border-radius: 1.25rem;
+    background: var(--brand-soft);
+}
+
+.video-featured-symbol {
+    color: var(--brand-color);
+    font-size: clamp(3rem, 10vw, 6rem);
+}
+
 .reading-day-panel {
     background: var(--brand-soft);
 }
 
 .reading-passages {
-    padding-left: 1.25rem;
+    padding-left: 0;
+    list-style: none;
+}
+
+.reading-passage {
+    border: 1px solid var(--surface-border);
+    border-radius: 0.75rem;
+    background: var(--surface-background);
+}
+
+.reading-passage label {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding: 0.85rem;
+    cursor: pointer;
+}
+
+.reading-passage.is-completed {
+    border-color: var(--brand-color);
+    background: var(--brand-soft);
+    box-shadow: inset 4px 0 var(--brand-color);
+}
+
+.reading-passage-status {
+    margin-left: auto;
+}
+
+.reading-passage.is-completed .reading-passage-status {
+    color: var(--brand-color);
+    font-weight: 600;
 }
 
 .reading-passages li + li {

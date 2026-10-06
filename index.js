@@ -783,6 +783,34 @@ function createEmptyReadingPlanState() {
     return { activePlanId: null, plans: {} };
 }
 
+function completedReadingIndices(plan, progress, dayNumber) {
+    const readings = plan.days[dayNumber - 1].readings;
+    if (progress.completedDays.includes(dayNumber)) {
+        return readings.map((reading, index) => index);
+    }
+    const saved = progress.completedReadings?.[dayNumber];
+    return Array.isArray(saved)
+        ? [...new Set(saved.filter(index => Number.isInteger(index) && index >= 0 && index < readings.length))]
+        : [];
+}
+
+function updatedReadingProgress(plan, progress, dayNumber, indices, date) {
+    const next = {
+        ...progress,
+        completedDays: progress.completedDays.filter(day => day !== dayNumber),
+        completedAt: { ...progress.completedAt },
+        completedReadings: { ...progress.completedReadings, [dayNumber]: [...indices].sort((a, b) => a - b) }
+    };
+    if (indices.length === plan.days[dayNumber - 1].readings.length) {
+        next.completedDays.push(dayNumber);
+        next.completedDays.sort((a, b) => a - b);
+        next.completedAt[dayNumber] = progress.completedAt[dayNumber] || date;
+    } else {
+        delete next.completedAt[dayNumber];
+    }
+    return next;
+}
+
 function initialiseReadingPlans() {
     const dashboard = document.getElementById("activeReadingPlan");
     const feedback = document.getElementById("readingPlanFeedback");
@@ -892,9 +920,24 @@ function initialiseReadingPlans() {
 
         const passageList = document.getElementById("readingPassages");
         passageList.replaceChildren();
-        day.readings.forEach(reading => {
+        const completedReadings = new Set(completedReadingIndices(plan, progress, dayNumber));
+        day.readings.forEach((reading, index) => {
             const item = document.createElement("li");
-            item.textContent = reading;
+            const isCompleted = completedReadings.has(index);
+            item.className = `reading-passage${isCompleted ? " is-completed" : ""}`;
+            const label = document.createElement("label");
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.className = "form-check-input";
+            checkbox.checked = isCompleted;
+            checkbox.dataset.readingIndex = String(index);
+            const reference = document.createElement("span");
+            reference.textContent = reading;
+            const status = document.createElement("span");
+            status.className = "small reading-passage-status";
+            status.textContent = isCompleted ? "Completed" : "Not completed";
+            label.append(checkbox, reference, status);
+            item.appendChild(label);
             passageList.appendChild(item);
         });
 
@@ -1064,25 +1107,58 @@ function initialiseReadingPlans() {
         }
     });
 
+    function confirmCompletionChange(indices, advanceDay = false) {
+        if (!state.activePlanId) return;
+        const planId = state.activePlanId;
+        const plan = READING_PLANS[state.activePlanId];
+        const progress = state.plans[planId];
+        const dayNumber = progress.currentDay;
+        if (!window.confirm(`Save completion changes for ${plan.title}, day ${dayNumber}?`)) {
+            renderPlan();
+            feedback.textContent = "Changes canceled. Saved reading progress is unchanged.";
+            return;
+        }
+        const nextProgress = updatedReadingProgress(plan, progress, dayNumber, indices, getLocalDateKey(new Date()));
+        if (advanceDay && nextProgress.completedDays.includes(dayNumber)) {
+            nextProgress.currentDay = firstIncompleteDay(plan, nextProgress.completedDays, dayNumber);
+        }
+        const nextState = { ...state, plans: { ...state.plans, [planId]: nextProgress } };
+        try {
+            localStorage.setItem(READING_PLAN_STORAGE_KEY, JSON.stringify(nextState));
+        } catch (error) {
+            renderPlan();
+            feedback.textContent = "Could not save completion changes. Your previous progress is unchanged. Check browser storage and try again.";
+            console.error("Unable to save reading completion:", error);
+            return;
+        }
+        state = nextState;
+        storageWarning = "";
+        renderPlan();
+        renderCatalog();
+        if (selectedPlanId) showPlanDetails(selectedPlanId);
+        feedback.textContent = "Reading progress saved. Analytics updated.";
+        window.dispatchEvent(new CustomEvent("reading-plan-progress-updated", { detail: state }));
+    }
+
+    document.getElementById("readingPassages").addEventListener("change", event => {
+        const checkbox = event.target;
+        if (!(checkbox instanceof HTMLInputElement) || !checkbox.matches("[data-reading-index]") || !state.activePlanId) return;
+        const plan = READING_PLANS[state.activePlanId];
+        const progress = state.plans[state.activePlanId];
+        const indices = new Set(completedReadingIndices(plan, progress, progress.currentDay));
+        const index = Number(checkbox.dataset.readingIndex);
+        if (checkbox.checked) indices.add(index);
+        else indices.delete(index);
+        confirmCompletionChange([...indices]);
+    });
+
     document.getElementById("completeReadingDay").addEventListener("click", () => {
         if (!state.activePlanId) return;
         const plan = READING_PLANS[state.activePlanId];
         const progress = state.plans[state.activePlanId];
-        const dayNumber = progress.currentDay;
-        const completedDays = new Set(progress.completedDays);
-
-        if (completedDays.has(dayNumber)) {
-            completedDays.delete(dayNumber);
-            delete progress.completedAt[dayNumber];
-        } else {
-            completedDays.add(dayNumber);
-            progress.completedAt[dayNumber] = getLocalDateKey(new Date());
-            progress.currentDay = firstIncompleteDay(plan, [...completedDays], dayNumber);
-        }
-
-        progress.completedDays = [...completedDays].sort((a, b) => a - b);
-        renderPlan();
-        saveState();
+        const indices = progress.completedDays.includes(progress.currentDay)
+            ? [] : plan.days[progress.currentDay - 1].readings.map((reading, index) => index);
+        confirmCompletionChange(indices, true);
     });
 
     renderPlan();
@@ -1124,12 +1200,20 @@ function initialiseBibleAnalytics() {
 
     function updateCompletedDayCount() {
         completedDays = 0;
-        Object.values(readingState.plans || {}).forEach(progress => {
+        let completedPassages = 0;
+        Object.entries(readingState.plans || {}).forEach(([planId, progress]) => {
             if (progress && Array.isArray(progress.completedDays)) {
                 completedDays += progress.completedDays.length;
+                const plan = READING_PLANS[planId];
+                if (plan) {
+                    plan.days.forEach((day, index) => {
+                        completedPassages += completedReadingIndices(plan, progress, index + 1).length;
+                    });
+                }
             }
         });
         document.getElementById("statCompletedDays").textContent = formatNumber.format(completedDays);
+        document.getElementById("statCompletedPassages").textContent = formatNumber.format(completedPassages);
     }
 
     try {

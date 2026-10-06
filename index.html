@@ -41,6 +41,7 @@
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                         <li class="nav-item"><a class="nav-link" href="#home">Home</a></li>
                         <li class="nav-item"><a class="nav-link" href="discover.html">Discover</a></li>
+                        <li class="nav-item"><a class="nav-link" href="videos.html">Videos</a></li>
                         <li class="nav-item"><a class="nav-link" href="#verse-generator">Daily verse</a></li>
                         <li class="nav-item"><a class="nav-link" href="#reading-plans">Plans</a></li>
                         <li class="nav-item"><a class="nav-link" href="#bible-explorer">Explore</a></li>
@@ -311,7 +312,8 @@
                                 <select class="form-select form-select-sm" id="readingDaySelect" aria-label="Choose a reading plan day"></select>
                             </div>
                         </div>
-                        <ul class="reading-passages mb-4" id="readingPassages"></ul>
+                        <p class="small text-body-secondary mb-2" id="readingCompletionHelp">Check a passage to mark it complete, then confirm to save. Completed passages are highlighted. A day is complete when all its passages are checked.</p>
+                        <ul class="reading-passages mb-4" id="readingPassages" aria-describedby="readingCompletionHelp"></ul>
                         <div class="d-flex flex-column flex-sm-row justify-content-between gap-3">
                             <button class="btn btn-outline-secondary" id="previousReadingDay" type="button">Previous day</button>
                             <button class="btn btn-primary" id="completeReadingDay" type="button">Mark day complete</button>
@@ -369,6 +371,7 @@
                 </div>
             </div>
 
+            <p class="small text-body-secondary">Completed reading-plan passages: <strong id="statCompletedPassages">0</strong></p>
             <div class="row g-4">
                 <div class="col-12 col-lg-7">
                     <div class="card analytics-panel h-100">

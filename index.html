@@ -121,8 +121,8 @@
     <div class="modal fade notification-modal" id="notificationsModal" tabindex="-1" aria-labelledby="notificationScreenTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
             <div class="modal-content">
-                <div class="modal-header">
-                    <div class="d-flex align-items-center gap-2">
+                <div class="modal-header notification-header">
+                    <div class="notification-header-title d-flex align-items-center gap-2">
                         <button class="btn btn-outline-secondary btn-sm" id="notificationBackButton" type="button" aria-label="Back to notifications" hidden>
                             <i class="bi bi-arrow-left" aria-hidden="true"></i>
                         </button>
@@ -131,7 +131,7 @@
                             <h2 class="modal-title h4 fw-bold mb-0" id="notificationScreenTitle">Notifications</h2>
                         </div>
                     </div>
-                    <div class="d-flex align-items-center gap-2">
+                    <div class="notification-header-actions d-flex align-items-center gap-2">
                         <button class="btn btn-outline-secondary btn-sm" id="notificationSettingsButton" type="button" aria-label="Notification settings">
                             <i class="bi bi-gear" aria-hidden="true"></i>
                         </button>
@@ -178,6 +178,7 @@
 
                     <section id="pushNotificationView" aria-labelledby="notificationScreenTitle" hidden>
                         <p class="text-body-secondary">Choose which activity updates you would like to receive as push notifications.</p>
+                        <p class="small text-body-secondary">Preferences and reminder times are saved on this device only. These controls do not schedule or send push notifications yet. Plan selectors use your saved reading plans; shared plan invitations, prayer sharing and church updates require future services.</p>
                         <div class="notification-preference-list" id="pushNotificationPreferences"></div>
                     </section>
                     <p class="small text-body-secondary mt-3 mb-0" id="notificationSettingsFeedback" role="status" aria-live="polite"></p>
@@ -658,6 +659,7 @@
     <script src="profile-store.js"></script>
     <script src="activity-events.js"></script>
     <script src="plan-milestones.js"></script>
+    <script src="push-preferences.js"></script>
     <script src="index.js"></script>
     <script src="verse-design.js"></script>
     <script src="install.js"></script>

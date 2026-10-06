@@ -191,6 +191,24 @@ body {
     border-radius: 1rem;
 }
 
+.notification-header {
+    gap: .75rem;
+}
+
+.notification-header-title {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.notification-header-actions {
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+.notification-header-actions .btn-close {
+    margin: 0;
+}
+
 .notification-bell {
     position: relative;
 }

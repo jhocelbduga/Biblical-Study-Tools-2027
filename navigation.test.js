@@ -39,6 +39,17 @@ test("home account, subscription, notifications, profile, and install controls a
     assert.match(home, /href="account.html">Sign in<\/a>/);
 });
 
+test("notification header groups settings then close at the far right without Bootstrap negative margins", () => {
+    const header = home.slice(home.indexOf('class="modal-header notification-header"'), home.indexOf('id="notificationInboxView"'));
+    assert.match(header, /notification-header-title/);
+    const actions = header.slice(header.indexOf('class="notification-header-actions'));
+    assert.ok(actions.indexOf('id="notificationSettingsButton"') < actions.indexOf('class="btn-close"'));
+    assert.match(actions, /data-bs-dismiss="modal" aria-label="Close"/);
+    const css = readFileSync(new URL("./styles.css", import.meta.url), "utf8");
+    assert.match(css, /\.notification-header-actions\s*\{[^}]*margin-left: auto;[^}]*flex-shrink: 0;/);
+    assert.match(css, /\.notification-header-actions \.btn-close\s*\{[^}]*margin: 0;/);
+});
+
 test("home header orders profile, branding, bell, ellipsis and hamburger with actions inside the menu", () => {
     const header = home.slice(home.indexOf("<header>"), home.indexOf("</header>"));
     const positions = ['id="profileButton"', 'class="navbar-brand', 'id="notificationsButton"', 'id="navigationMenu"', 'id="headerActionsToggle"']

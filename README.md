@@ -206,6 +206,15 @@ account friendships and the feed display name are stored in Supabase.
 
 ### Newsletter subscriptions and notifications
 
+Push settings include Daily Verse text/image times, Bible news, saved-plan
+selectors, plan participant updates, Friends, Prayer, My Church, and app activity
+switches. Reminder times use device-local time. The prayer selector reuses saved
+reading plans, not a separate prayer library. Existing Friends preferences are
+preserved, and email/verse push preferences are independent. These settings are
+stored only on this device: they do not schedule or deliver push alerts. Shared
+plan invitations, prayer sharing and church post notifications require future
+services.
+
 - Subscribe to updates through the server's Mailchimp integration.
 - Use the confirmation email flow before joining the mailing list.
 - Review the in-app notification inbox and mark notifications as read.

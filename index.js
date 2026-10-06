@@ -269,6 +269,16 @@ function initialiseNotifications() {
 
     function renderPreferences(groupName) {
         const container = document.getElementById(`${groupName}NotificationPreferences`);
+        if (groupName === "push" && window.PushPreferences) {
+            const savedPlans = loadStoredObject(READING_PLAN_STORAGE_KEY).plans || {};
+            window.PushPreferences.render({
+                container, preferences, feedback: settingsFeedback,
+                plans: Object.keys(savedPlans).filter(id => Object.hasOwn(READING_PLANS, id))
+                    .map(id => ({ id, title: READING_PLANS[id].title })),
+                save: next => saveState(preferencesKey, next, settingsFeedback)
+            });
+            return;
+        }
         container.replaceChildren();
 
         preferenceGroups[groupName].forEach((preference) => {
@@ -320,12 +330,16 @@ function initialiseNotifications() {
             push: "Push notifications"
         }[screen];
         settingsFeedback.textContent = "";
+        if (screen === "push") renderPreferences("push");
     }
 
     renderInbox();
     window.addEventListener("reading-achievements-updated", renderInbox);
     renderPreferences("email");
     renderPreferences("push");
+    window.addEventListener("reading-plan-progress-updated", () => {
+        if (currentScreen === "push") renderPreferences("push");
+    });
 
     settingsButton.addEventListener("click", () => showScreen("settings"));
     backButton.addEventListener("click", () => {

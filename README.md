@@ -175,6 +175,35 @@ transfer are not included.
 
 ### Local profiles, friends, and QR invitations
 
+#### Profile Saved library
+
+The Saved tab follows Activity and includes Notes, Highlights, Verses, Images,
+Plans, Video, Events and Prayer, with expandable icon/arrow categories.
+
+- Create private device-local notes and prayers with optional verse references.
+- Save/highlight Daily Verse cards and save their existing posted verse images.
+  Highlights apply inside Study Tools, not the separate KJV reader.
+- Save plans from Browse Plans, and videos from catalog/Discover/Watch.
+- Plan menus offer Start a plan (opens the existing confirmation screen),
+  Remove from saved, Share plan (copy link), and Plan info. Removing a bookmark
+  does not delete reading progress.
+- Video cards have generic app-created preview thumbnails, titles and menus
+  for Share video, Remove from saved and Video info. These are not official
+  provider screenshots.
+- Verses also aggregates saved videos/plans; Prayer also includes saved plans.
+- Events opens upcoming Home Feed events; Saved events lists all bookmarked
+  events, including past events. Event details are reauthorized by the backend
+  rather than copied into storage.
+- Dated event posting requires the additive migration
+  [feed-events.sql](./feed-events.sql) after the base feed schema.
+
+Saved entries use `bstSavedItems` on this origin and device. Clearing browser
+storage removes them. They are not cloud-synced or automatically deleted on
+logout. Explicitly saved verse text is a local copy and cannot be recalled by
+later audience changes. Event bookmarks store only IDs. Posted images currently
+mean the app's existing curated verse images; arbitrary image uploads are not
+implemented.
+
 - Maintain a device-local profile and saved friends.
 - Search local friends and filter by church affiliation.
 - Select contacts with permission in supported browsers, or enter them manually.
@@ -206,12 +235,13 @@ account friendships and the feed display name are stored in Supabase.
 
 ### Newsletter subscriptions and notifications
 
-Push settings include Daily Verse text/image times, Bible news, saved-plan
+Email and push settings include Daily Verse text/image times, Bible news, saved-plan
 selectors, plan participant updates, Friends, Prayer, My Church, and app activity
 switches. Reminder times use device-local time. The prayer selector reuses saved
 reading plans, not a separate prayer library. Existing Friends preferences are
 preserved, and email/verse push preferences are independent. These settings are
-stored only on this device: they do not schedule or deliver push alerts. Shared
+stored only on this device: they do not schedule or deliver email/push alerts
+or enroll users in newsletters. Existing email switches are preserved. Shared
 plan invitations, prayer sharing and church post notifications require future
 services.
 

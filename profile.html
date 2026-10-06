@@ -63,6 +63,7 @@
         <ul class="nav nav-pills profile-tabs my-3" role="tablist">
             <li class="nav-item" role="presentation"><button class="nav-link active" id="tab-church" data-bs-toggle="pill" data-bs-target="#pane-church" type="button" role="tab" aria-controls="pane-church" aria-selected="true">My church</button></li>
             <li class="nav-item" role="presentation"><button class="nav-link" id="tab-activity" data-bs-toggle="pill" data-bs-target="#pane-activity" type="button" role="tab" aria-controls="pane-activity" aria-selected="false">Activity</button></li>
+            <li class="nav-item" role="presentation"><button class="nav-link" id="tab-saved" data-bs-toggle="pill" data-bs-target="#pane-saved" type="button" role="tab" aria-controls="pane-saved" aria-selected="false">Saved</button></li>
             <li class="nav-item" role="presentation"><button class="nav-link" id="tab-posts" data-bs-toggle="pill" data-bs-target="#pane-posts" type="button" role="tab" aria-controls="pane-posts" aria-selected="false">Shared posts</button></li>
             <li class="nav-item" role="presentation"><button class="nav-link" id="tab-friends" data-bs-toggle="pill" data-bs-target="#pane-friends" type="button" role="tab" aria-controls="pane-friends" aria-selected="false">Friends</button></li>
         </ul>
@@ -75,6 +76,25 @@
 
             <section class="tab-pane fade" id="pane-activity" role="tabpanel" aria-labelledby="tab-activity" tabindex="0">
                 <ul class="profile-list" id="activityList"></ul>
+            </section>
+
+            <section class="tab-pane fade" id="pane-saved" role="tabpanel" aria-labelledby="tab-saved" tabindex="0">
+                <h2 class="h4">Saved</h2>
+                <p class="small text-body-secondary">Saved on this device, not synced to an account. Save verses, highlights, posted verse images, plans and videos from their original screens. The Verses section also includes saved videos and plans; Prayer also includes saved plans.</p>
+                <form class="profile-card mb-3" id="savedEntryForm">
+                    <h3 class="h6">Create a note or prayer</h3>
+                    <label class="form-label" for="savedEntryType">Type</label>
+                    <select class="form-select mb-2" id="savedEntryType"><option value="note">Note</option><option value="prayer">Prayer</option></select>
+                    <label class="form-label" for="savedEntryTitle">Title</label>
+                    <input class="form-control mb-2" id="savedEntryTitle" maxlength="160" required>
+                    <label class="form-label" for="savedEntryReference">Verse reference (optional)</label>
+                    <input class="form-control mb-2" id="savedEntryReference" maxlength="160">
+                    <label class="form-label" for="savedEntryBody">Note or prayer</label>
+                    <textarea class="form-control mb-2" id="savedEntryBody" maxlength="4000" rows="3" required></textarea>
+                    <button class="btn btn-primary" type="submit">Save</button>
+                </form>
+                <p id="savedFeedback" role="status" aria-live="polite"></p>
+                <div id="savedCategories"></div>
             </section>
 
             <section class="tab-pane fade" id="pane-posts" role="tabpanel" aria-labelledby="tab-posts" tabindex="0">
@@ -154,8 +174,12 @@
     <script src="qrcode.js"></script>
     <script src="activity-events.js"></script>
     <script src="profile-store.js"></script>
+    <script src="saved-store.js"></script>
+    <script src="videos-data.js"></script>
     <script src="qr-share.js"></script>
     <script src="profile.js"></script>
+    <script src="profile-saved.js"></script>
+    <script type="module" src="profile-saved-events.js"></script>
     <script type="module" src="profile-feed.js"></script>
 </body>
 </html>

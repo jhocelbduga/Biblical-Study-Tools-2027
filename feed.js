@@ -4,7 +4,8 @@ import { publishActivity } from "./feed-publisher.js";
 const labels = {
     achievement: "Earned a milestone", completion: "Completed an activity",
     verse_shared: "Shared a verse", reflection: "Created a reflection", post: "Posted an update",
-    comment: "Added a comment", comments_enabled: "Enabled comments", comments_disabled: "Disabled new comments"
+    comment: "Added a comment", comments_enabled: "Enabled comments", comments_disabled: "Disabled new comments",
+    event: "Posted an event"
 };
 const audiences = { public: "Public", friends: "Friends Only", private: "Private" };
 const $ = id => document.getElementById(id);
@@ -73,6 +74,9 @@ function draft(type, content = {}) {
     composerType = type;
     verse = { reference: content.reference || "", text: content.text || "" };
     $("feedBody").value = content.body || "";
+    $("feedEventToggle").checked = false;
+    $("feedEventDate").value = "";
+    $("feedEventDate").disabled = true;
     $("feedDraftVerse").textContent = verse.reference ? `${verse.reference}: ${verse.text}` : "";
     $("feedComposeTitle").textContent = type === "reflection" ? "Write a personal reflection" :
         type === "verse_shared" ? "Post this verse" : "Create a post";
@@ -166,6 +170,9 @@ function renderEntry(entry) {
     card.append(heading);
     if (entry.comment) card.append(element("p", entry.comment, "feed-content mt-3"));
     card.append(element("p", post.body, "feed-content mt-3"));
+    if (post.event_at) {
+        card.append(element("p", `Event: ${new Date(post.event_at).toLocaleString()}`, "fw-semibold"));
+    }
     if (post.verse_reference) {
         card.append(element("blockquote", post.verse_text, "feed-content"),
             element("p", `${post.verse_reference} (KJV)`, "fw-semibold"));
@@ -179,6 +186,21 @@ function renderEntry(entry) {
     like.disabled = !user;
     const comments = element("div", "", "feed-comments mt-3");
     actions.append(like, button("View comments", () => loadComments(post, comments)));
+    if (post.activity_type === "event" && window.SavedStore) {
+        const save = element("button", "", "btn btn-outline-secondary btn-sm");
+        save.type = "button";
+        window.SavedStore.attach(save, { type: "event", id: post.id, title: "Saved event" }, $("feedStatus"));
+        actions.append(save);
+    }
+    if (post.activity_type === "verse_shared" && window.SavedStore) {
+        const save = element("button", "", "btn btn-outline-secondary btn-sm");
+        save.type = "button";
+        window.SavedStore.attach(save, {
+            type: "verse", id: `feed-${post.id}`, title: post.verse_reference || "Shared verse",
+            reference: post.verse_reference, body: post.verse_text
+        }, $("feedStatus"));
+        actions.append(save);
+    }
     if (post.audience === "public") actions.append(button("Share link", async () => {
         const url = new URL(window.location.href);
         url.search = "";
@@ -354,6 +376,9 @@ async function applySession(session) {
     $("feedLinkedActivity").replaceChildren();
     $("feedFriends").replaceChildren();
     $("feedBody").value = "";
+    $("feedEventToggle").checked = false;
+    $("feedEventDate").disabled = true;
+    $("feedEventDate").value = "";
     $("feedDraftVerse").textContent = "";
     sourceId = null;
     verse = { reference: "", text: "" };
@@ -402,17 +427,33 @@ $("feedComposer").addEventListener("submit", event => {
         signedIn();
         $("feedPublish").disabled = true;
         const activity = {
-            type: composerType, eventKey: composerKey, body: $("feedBody").value,
+            type: $("feedEventToggle").checked ? "event" : composerType, eventKey: composerKey, body: $("feedBody").value,
             audience: $("feedAudience").value, commentsEnabled: $("feedCommentsEnabled").checked,
             reference: verse.reference, text: verse.text, sourceId
         };
+        if ($("feedEventToggle").checked) {
+            if (composerType !== "post") {
+                $("feedPublish").disabled = false;
+                throw new Error("Clear the verse/reflection draft before creating an event.");
+            }
+            const date = new Date($("feedEventDate").value);
+            if (!Number.isFinite(date.getTime()) || date <= new Date()) {
+                $("feedPublish").disabled = false;
+                throw new Error("Choose a future event date and time.");
+            }
+            activity.eventAt = date.toISOString();
+        }
         try {
             await publish(activity);
         } finally { $("feedPublish").disabled = false; }
     });
 });
-["feedBody", "feedAudience", "feedCommentsEnabled"].forEach(id => {
+["feedBody", "feedAudience", "feedCommentsEnabled", "feedEventToggle", "feedEventDate"].forEach(id => {
     $(id).addEventListener("input", () => { composerKey = crypto.randomUUID(); });
+});
+$("feedEventToggle").addEventListener("change", () => {
+    $("feedEventDate").disabled = !$("feedEventToggle").checked;
+    $("feedEventDate").required = $("feedEventToggle").checked;
 });
 $("feedCancelDraft").addEventListener("click", () => draft("post"));
 $("feedSettings").addEventListener("submit", event => {

@@ -209,6 +209,14 @@ body {
     margin: 0;
 }
 
+.saved-category { cursor: pointer; list-style: none; gap: .5rem; }
+.saved-category::-webkit-details-marker { display: none; }
+details[open] > .saved-category .bi-chevron-right { transform: rotate(90deg); }
+.saved-video-thumbnail { width: 110px; flex-shrink: 0; }
+.saved-video-thumbnail img { width: 100%; border-radius: .5rem; }
+.saved-item-content { min-width: 0; overflow-wrap: anywhere; }
+.saved-highlight { background: #fff2b3; color: #292929; padding: .5rem; border-radius: .25rem; }
+
 .notification-bell {
     position: relative;
 }

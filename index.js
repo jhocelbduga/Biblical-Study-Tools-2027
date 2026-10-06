@@ -269,10 +269,10 @@ function initialiseNotifications() {
 
     function renderPreferences(groupName) {
         const container = document.getElementById(`${groupName}NotificationPreferences`);
-        if (groupName === "push" && window.PushPreferences) {
+        if (window.PushPreferences) {
             const savedPlans = loadStoredObject(READING_PLAN_STORAGE_KEY).plans || {};
             window.PushPreferences.render({
-                container, preferences, feedback: settingsFeedback,
+                container, preferences, feedback: settingsFeedback, channel: groupName,
                 plans: Object.keys(savedPlans).filter(id => Object.hasOwn(READING_PLANS, id))
                     .map(id => ({ id, title: READING_PLANS[id].title })),
                 save: next => saveState(preferencesKey, next, settingsFeedback)
@@ -330,7 +330,7 @@ function initialiseNotifications() {
             push: "Push notifications"
         }[screen];
         settingsFeedback.textContent = "";
-        if (screen === "push") renderPreferences("push");
+        if (screen === "push" || screen === "email") renderPreferences(screen);
     }
 
     renderInbox();
@@ -338,7 +338,7 @@ function initialiseNotifications() {
     renderPreferences("email");
     renderPreferences("push");
     window.addEventListener("reading-plan-progress-updated", () => {
-        if (currentScreen === "push") renderPreferences("push");
+        if (currentScreen === "push" || currentScreen === "email") renderPreferences(currentScreen);
     });
 
     settingsButton.addEventListener("click", () => showScreen("settings"));
@@ -472,6 +472,22 @@ function initialiseVerseGenerator() {
         setShareOptionsVisible(false);
 
         const data = createShareData(verse);
+        const savedActions = document.getElementById("verseSavedActions");
+        if (savedActions && window.SavedStore) {
+            savedActions.replaceChildren();
+            for (const type of ["verse", "highlight", "image"]) {
+                const save = document.createElement("button");
+                save.type = "button";
+                save.className = "btn btn-outline-primary btn-sm";
+                window.SavedStore.attach(save, {
+                    type, id: verse.id, title: verse.reference, reference: verse.reference,
+                    body: verse.text, ...(type === "image" ? { image: `images/verses/${verse.id}.png` } : {})
+                }, feedback);
+                savedActions.append(save);
+            }
+            try { verseText.classList.toggle("saved-highlight", window.SavedStore.has("highlight", verse.id)); }
+            catch (error) { console.error("Unable to restore verse highlight:", error); }
+        }
         shareUrlInput.value = data.url;
         shareLinks.querySelectorAll("a").forEach(link => link.remove());
         const imageUrl = new URL(`images/verses/${verse.id}.png`, VERSE_GENERATOR_PUBLIC_URL).toString();
@@ -511,6 +527,11 @@ function initialiseVerseGenerator() {
     shareButton.addEventListener("click", () => {
         setShareOptionsVisible(shareOptions.hidden);
         if (!shareOptions.hidden) document.getElementById("copyVerseLink").focus();
+    });
+    window.addEventListener("saved-items-updated", () => {
+        if (!currentVerse || !window.SavedStore) return;
+        try { verseText.classList.toggle("saved-highlight", window.SavedStore.has("highlight", currentVerse.id)); }
+        catch (error) { feedback.textContent = "Saved highlights are unavailable."; console.error(error); }
     });
     ["postVerseToFeed", "reflectVerseToFeed"].forEach(id => {
         document.getElementById(id).addEventListener("click", () => {
@@ -1047,6 +1068,17 @@ function initialiseReadingPlans() {
             selectButton.setAttribute("aria-pressed", String(selectedPlanId === planId));
             selectButton.addEventListener("click", () => showPlanDetails(planId));
             footer.append(categoryLabel, selectButton);
+            if (window.SavedStore) {
+                const save = document.createElement("button");
+                save.type = "button";
+                save.className = "btn btn-sm btn-outline-secondary";
+                window.SavedStore.attach(save, {
+                    type: "plan", id: planId, title: plan.title,
+                    body: `${plan.description}\n${plan.days.length} days | ${plan.category}`
+                }, catalogFeedback);
+                footer.append(save);
+                footer.classList.add("flex-wrap");
+            }
             item.append(heading, summary, footer);
             catalog.appendChild(item);
         });
@@ -1213,6 +1245,17 @@ function initialiseReadingPlans() {
     renderPlan();
     renderCatalog();
     if (storageWarning) feedback.textContent = storageWarning;
+    const params = new URLSearchParams(window.location.search);
+    const linkedPlan = params.get("plan");
+    if (linkedPlan) {
+        if (!Object.hasOwn(READING_PLANS, linkedPlan)) {
+            feedback.textContent = "The linked plan could not be found.";
+        } else {
+            showPlanDetails(linkedPlan);
+            bootstrap.Modal.getOrCreateInstance(document.getElementById("readingPlanModal")).show();
+            if (params.get("startPlan") === "1") startPlanButton.focus();
+        }
+    }
 }
 
 function firstIncompleteDay(plan, completedDays, startAfter = 0) {

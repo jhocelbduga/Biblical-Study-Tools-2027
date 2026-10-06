@@ -14,6 +14,7 @@ export async function checkFeedDatabase(db) {
         create publication supabase_realtime;
     `);
     await db.exec(readFileSync(new URL("./feed.sql", import.meta.url), "utf8"));
+    await db.exec(readFileSync(new URL("./feed-events.sql", import.meta.url), "utf8"));
     const owner = "00000000-0000-4000-8000-000000000001";
     const friend = "00000000-0000-4000-8000-000000000002";
     const stranger = "00000000-0000-4000-8000-000000000003";
@@ -111,6 +112,23 @@ export async function checkFeedDatabase(db) {
     assert.equal(page1.length, 20);
     assert.ok(page2.length > 0);
     assert.ok(page2.every(event => event.id < page1.at(-1).id));
+    const eventKey2 = crypto.randomUUID();
+    const future = new Date(Date.now() + 86400000).toISOString();
+    const event = await scalar("select public.feed_publish_event($1,'Upcoming event',$2,'friends',true,$3)", [eventKey2,future,owner]);
+    assert.equal(await scalar("select public.feed_publish_event($1,'Retry',$2,'public',true,$3)", [eventKey2,future,owner]), event);
+    const upcoming = await scalar("select public.feed_upcoming()");
+    assert.equal(upcoming.length, 1);
+    assert.equal(upcoming[0].body, "Upcoming event");
+    await assert.rejects(() => scalar("select public.feed_publish_event($1,'Past event',now()-interval '1 day')", [crypto.randomUUID()]), /future/);
+    await assert.rejects(() => publish("event", "public"), /feed_event_date/);
+    await as(stranger);
+    assert.equal((await scalar("select public.feed_upcoming()")).length, 0);
+    await as(null);
+    assert.equal((await scalar("select public.feed_upcoming()")).length, 0);
+    await as(owner);
+    await action(event, "audience", "public");
+    await as(null);
+    assert.equal((await scalar("select public.feed_upcoming()")).length, 1);
     console.log("PASS: database audiences, friendships, grants, idempotency, engagements, event processing, source privacy and pagination");
 }
 

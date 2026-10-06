@@ -17,4 +17,9 @@
     link.setAttribute("aria-label", `${item.type === "Collection" ? "Explore collection" : "Watch video"}: ${item.title} on Bible App (opens in a new tab)`);
     link.hidden = false;
     document.getElementById("watchNotice").hidden = false;
+    if (window.SavedStore) {
+        const save = document.getElementById("saveWatchVideo");
+        save.hidden = false;
+        window.SavedStore.attach(save, { type: "video", id: item.id, title: item.title, body: item.summary }, feedback);
+    }
 })();

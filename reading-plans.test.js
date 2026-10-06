@@ -44,6 +44,7 @@ function createHarness({ confirm = true, failStorage = false, savedState } = {})
     let prompts = 0;
     const context = vm.createContext({
         document,
+        URLSearchParams,
         HTMLInputElement: Element,
         localStorage: {
             getItem: () => stored,
@@ -53,6 +54,7 @@ function createHarness({ confirm = true, failStorage = false, savedState } = {})
             }
         },
         window: {
+            location: { search: "" },
             confirm() { prompts++; return confirm; },
             addEventListener(type, callback) { windowListeners[type] = callback; },
             dispatchEvent(event) {

@@ -42,7 +42,17 @@
     }
     window.PushPreferences = {
         groups,
-        render({ container, preferences, save, plans, feedback }) {
+        render({ container, preferences, save, plans, feedback, channel = "push" }) {
+            if (!["email", "push"].includes(channel)) throw new Error("Unknown notification channel.");
+            const emailKeys = {
+                pushVerseText: "verseOfTheDayText", pushVerseImage: "verseOfTheDayImage",
+                pushBibleNews: "bibleNews", pushMyPlan: "emailMyPlan", pushPrayerPlan: "emailPrayerPlan"
+            };
+            const keyFor = id => channel === "push" ? id : emailKeys[id] || `email${id[0].toUpperCase()}${id.slice(1)}`;
+            const channelGroups = groups.map(group => ({
+                ...group, plan: group.plan ? keyFor(group.plan) : undefined,
+                items: group.items.map(item => ({ ...item, id: keyFor(item.id) }))
+            }));
             container.replaceChildren();
             const commit = (key, value) => {
                 const next = { ...preferences, [key]: value };
@@ -50,16 +60,16 @@
                 Object.assign(preferences, next);
                 return true;
             };
-            groups.forEach(group => {
-                const section = node("section", "", "push-preference-group");
+            channelGroups.forEach(group => {
+                const section = node("section", "", "notification-preference-group");
                 const heading = node("h3", group.title, "h6 fw-bold text-uppercase mt-4 mb-3");
-                heading.id = `push-group-${group.items[0].id}`;
+                heading.id = `${channel}-group-${group.items[0].id}`;
                 section.setAttribute("aria-labelledby", heading.id);
                 section.append(heading);
                 if (group.plan) {
                     const label = node("label", group.planLabel, "form-label fw-medium");
                     const select = node("select", "", "form-select mb-3");
-                    select.id = `push-${group.plan}`;
+                    select.id = `${channel}-${group.plan}`;
                     label.htmlFor = select.id;
                     const placeholder = node("option", plans.length ? "Select a saved reading plan" : "No saved reading plans");
                     placeholder.value = "";
@@ -85,11 +95,11 @@
                     const label = node("label", item.label, "form-check-label fw-medium");
                     const wrap = node("span", "", "form-check form-switch mb-0 flex-shrink-0");
                     const toggle = node("input", "", "form-check-input");
-                    toggle.id = `push-${item.id}`;
+                    toggle.id = `${channel}-${item.id}`;
                     toggle.type = "checkbox";
                     toggle.role = "switch";
                     toggle.checked = preferences[item.id] === true;
-                    toggle.setAttribute("aria-label", `${item.label}, push notification`);
+                    toggle.setAttribute("aria-label", `${item.label}, ${channel} notification`);
                     label.htmlFor = toggle.id;
                     wrap.append(toggle);
                     row.append(label, wrap);
@@ -100,7 +110,7 @@
                         const timeRow = node("div", "", "mb-3 mt-2");
                         const timeLabel = node("label", "Select time (device local time)", "form-label small");
                         time = node("input", "", "form-control");
-                        time.id = `push-${timeKey}`;
+                        time.id = `${channel}-${timeKey}`;
                         time.type = "time";
                         time.required = true;
                         const savedTime = preferences[timeKey];
@@ -108,7 +118,7 @@
                         time.value = valid(savedTime) ? savedTime : "08:00";
                         if (savedTime !== undefined && !valid(savedTime)) {
                             feedback.textContent = "A saved reminder time is invalid. Choose a valid time and save it again.";
-                            console.error("Invalid saved push reminder time:", timeKey);
+                            console.error(`Invalid saved ${channel} reminder time:`, timeKey);
                         }
                         time.disabled = !toggle.checked;
                         timeLabel.htmlFor = time.id;

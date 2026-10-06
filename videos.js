@@ -39,6 +39,16 @@
         link.textContent = item.type === "Collection" ? "Explore collection" : "Watch video";
         link.setAttribute("aria-label", `${link.textContent}: ${item.title}`);
         body.append(meta, title, summary, link);
+        if (window.SavedStore) {
+            const save = document.createElement("button");
+            save.type = "button";
+            save.className = "btn btn-outline-secondary btn-sm mt-2 align-self-start";
+            const feedback = document.createElement("p");
+            feedback.className = "small mt-2 mb-0";
+            feedback.setAttribute("role", "status");
+            window.SavedStore.attach(save, { type: "video", id: item.id, title: item.title, body: item.summary }, feedback);
+            body.append(save, feedback);
+        }
         article.append(artwork, body);
         column.appendChild(article);
         return column;

@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import vm from "node:vm";
 import { readFileSync } from "node:fs";
 
-function harness({ preferences = {}, plans = [], fail = false } = {}) {
+function harness({ preferences = {}, plans = [], fail = false, channel = "push" } = {}) {
     const nodes = [];
     const createElement = tag => {
         const element = {
@@ -23,7 +23,7 @@ function harness({ preferences = {}, plans = [], fail = false } = {}) {
     const feedback = {};
     let saved;
     const render = nextPlans => window.PushPreferences.render({
-        container, feedback, preferences, plans: nextPlans || plans,
+        container, feedback, preferences, plans: nextPlans || plans, channel,
         save(next) { if (fail) { feedback.textContent = "Could not save"; return false; } saved = JSON.parse(JSON.stringify(next)); return true; }
     });
     render();
@@ -113,4 +113,47 @@ test("invalid times are rejected and corrupt saved times surface feedback", () =
         assert.equal(time.value, "08:00");
         assert.equal(app.saved(), undefined);
     }
+});
+
+test("email has all controls, retains legacy settings and never changes push preferences", () => {
+    const preferences = { verseOfTheDayText: true, bibleNews: true, friendRequests: true, pushVerseTextTime: "06:00" };
+    const app = harness({ channel: "email", preferences, plans: [{ id: "saved", title: "Saved plan" }] });
+    assert.equal(app.nodes.filter(node => node.type === "checkbox").length, 21);
+    assert.equal(app.nodes.filter(node => node.type === "time").length, 3);
+    assert.equal(app.nodes.filter(node => node.tag === "select").length, 2);
+    assert.equal(app.get("email-verseOfTheDayText").checked, true);
+    assert.equal(app.get("email-bibleNews").checked, true);
+    assert.equal(app.get("email-emailFriendRequests").checked, false);
+    const time = app.get("email-verseOfTheDayTextTime");
+    time.value = "18:30";
+    time.listeners.change();
+    const friend = app.get("email-emailFriendRequests");
+    friend.checked = true;
+    friend.listeners.change();
+    for (const id of ["email-emailMyPlan", "email-emailPrayerPlan"]) {
+        const select = app.get(id);
+        select.value = "saved";
+        select.listeners.change();
+    }
+    assert.equal(app.saved().verseOfTheDayTextTime, "18:30");
+    assert.equal(app.saved().pushVerseTextTime, "06:00");
+    assert.equal(app.saved().friendRequests, true);
+    assert.equal(app.saved().emailFriendRequests, true);
+    assert.equal(app.saved().emailMyPlan, "saved");
+    assert.equal(app.saved().emailPrayerPlan, "saved");
+    const reload = harness({ channel: "email", preferences: app.saved(), plans: [{ id: "saved", title: "Saved plan" }] });
+    assert.equal(reload.get("email-verseOfTheDayTextTime").value, "18:30");
+    assert.equal(reload.get("email-emailMyPlan").value, "saved");
+});
+
+test("email failed saves roll back controls and retain disabled reminder times", () => {
+    const app = harness({ channel: "email", fail: true, preferences: { verseOfTheDayImageTime: "12:15" } });
+    const toggle = app.get("email-verseOfTheDayImage");
+    const time = app.get("email-verseOfTheDayImageTime");
+    toggle.checked = true;
+    toggle.listeners.change();
+    assert.equal(toggle.checked, false);
+    assert.equal(time.disabled, true);
+    assert.equal(time.value, "12:15");
+    assert.equal(app.saved(), undefined);
 });

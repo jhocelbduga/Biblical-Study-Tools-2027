@@ -1,4 +1,4 @@
-const CACHE_NAME = "biblical-study-tools-shell-v27";
+const CACHE_NAME = "biblical-study-tools-shell-v29";
 const APP_SHELL = [
     "./",
     "./index.html",
@@ -31,6 +31,11 @@ const APP_SHELL = [
     "./profile.html",
     "./profile.js",
     "./profile-store.js",
+    "./saved-store.js",
+    "./profile-saved.js",
+    "./profile-saved-events.js",
+    "./saved-events.js",
+    "./icons/video-thumbnail.svg",
     "./qr-share.js",
     "./qrcode.js",
     "./install.js",

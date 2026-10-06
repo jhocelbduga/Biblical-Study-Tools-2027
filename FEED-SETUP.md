@@ -16,6 +16,24 @@ community schema. Do not rerun it over existing tables; use a reviewed migration
 for later changes. Realtime must be enabled in the project. Never put service-role
 keys in browser code.
 
+Then run [feed-events.sql](./feed-events.sql) **once** to enable dated event
+posts and Upcoming Events. On a project where the base feed is already
+installed, run only this additive migration. It adds the event timestamp,
+future-date validation, idempotent event publishing, and a paginated,
+RLS-filtered upcoming-event query. Events share the same audience, comments,
+likes and timeline processing as other posts.
+
+The Home composer has **Create an upcoming event** and a local date/time input;
+the server stores its UTC instant. Dates must be in the future. Event links and
+Saved bookmarks are not permission grants. Saved stores only event IDs;
+details are fetched under current authorization, including on Profile. A
+restricted event can remain on screen until the next 10-second authorization
+refresh, but no restricted event text is stored in the bookmark.
+
+Saving a **verse**, unlike an event bookmark, explicitly saves a local text
+copy. It cannot be recalled by a later change to the original post's audience.
+Saved entries are not account-synced and remain on a shared device after logout.
+
 Open Home, sign in, expand **Feed profile, privacy and account friends**, and
 choose a public display name. New accounts receive the name Reader and an
 automatic activity audience of **Private**.

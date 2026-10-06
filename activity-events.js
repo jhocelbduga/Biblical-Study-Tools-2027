@@ -1,5 +1,5 @@
 (() => {
-    const types = new Set(["achievement", "completion", "verse_shared", "reflection", "post"]);
+    const types = new Set(["achievement", "completion", "verse_shared", "reflection", "post", "event"]);
     window.ActivityEvents = {
         register(type) {
             if (!/^[a-z][a-z_]{0,39}$/.test(type)) throw new Error("Invalid activity type.");

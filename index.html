@@ -173,6 +173,7 @@
 
                     <section id="emailNotificationView" aria-labelledby="notificationScreenTitle" hidden>
                         <p class="text-body-secondary">Choose the email updates you would like to receive.</p>
+                        <p class="small text-body-secondary">Email preferences and reminder times are saved on this device, independently of push preferences. These controls do not schedule or send emails or subscribe you to a mailing list. Plan selectors use saved reading plans; shared plan invitations, prayer sharing and church updates require future services.</p>
                         <div class="notification-preference-list" id="emailNotificationPreferences"></div>
                     </section>
 
@@ -332,6 +333,9 @@
                         <input class="form-check-input" id="feedCommentsEnabled" type="checkbox" checked>
                         <span class="form-check-label">Enable comments</span>
                     </label>
+                    <label class="form-check mb-2"><input class="form-check-input" id="feedEventToggle" type="checkbox"><span class="form-check-label">Create an upcoming event (plain posts only)</span></label>
+                    <label class="form-label" for="feedEventDate">Event date and time (device local time)</label>
+                    <input class="form-control mb-3" id="feedEventDate" type="datetime-local" disabled>
                     <div class="d-flex gap-2">
                         <button class="btn btn-primary" id="feedPublish" type="submit">Publish activity</button>
                         <button class="btn btn-outline-secondary" id="feedCancelDraft" type="button">Clear draft</button>
@@ -343,6 +347,16 @@
             <div id="feedTimeline" aria-label="Activity timeline"></div>
             <button class="btn btn-outline-primary" id="feedMore" type="button" hidden>Older activities</button>
             <p class="small text-body-secondary mt-3">Newest activities first. Live updates require internet and a configured Supabase database. Audience changes also refresh every 10 seconds while this page is visible. Shared links never bypass privacy checks.</p>
+        </section>
+
+        <section class="card p-3 p-md-4 mb-4" id="upcomingEvents" aria-labelledby="upcomingEventsTitle">
+            <div class="d-flex gap-2 justify-content-between align-items-center">
+                <h2 class="h4" id="upcomingEventsTitle">Upcoming events</h2>
+                <button class="btn btn-outline-primary btn-sm" id="upcomingEventsRefresh" type="button">Refresh events</button>
+            </div>
+            <p id="upcomingEventStatus" role="status" aria-live="polite">Connecting to Home Feed events...</p>
+            <div id="upcomingEventList"></div>
+            <button class="btn btn-outline-primary btn-sm" id="upcomingEventsMore" type="button" hidden>More events</button>
         </section>
 
         <section class="card border-0 shadow-sm p-4 mt-4" aria-labelledby="planMilestonesTitle">
@@ -556,6 +570,7 @@
                         <p class="small mt-2 mb-0" id="verseDesignFeedback" role="status" aria-live="polite">Design choices are saved on this device. Shared links and existing verse images keep their original design.</p>
                     </details>
                     <p class="small text-body-secondary mb-0" id="verseShareFeedback" role="status" aria-live="polite"></p>
+                    <div class="d-flex flex-wrap gap-2 mt-3" id="verseSavedActions"></div>
                     <section class="border rounded-4 p-3 mt-3" id="verseShareOptions" aria-labelledby="verseShareOptionsTitle" hidden>
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h3 class="h5 mb-0" id="verseShareOptionsTitle">Share this verse</h3>
@@ -657,6 +672,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="profile-store.js"></script>
+    <script src="saved-store.js"></script>
     <script src="activity-events.js"></script>
     <script src="plan-milestones.js"></script>
     <script src="push-preferences.js"></script>
@@ -665,5 +681,6 @@
     <script src="install.js"></script>
     <script type="module" src="header-state.js"></script>
     <script type="module" src="feed.js"></script>
+    <script type="module" src="saved-events.js"></script>
 </body>
 </html>

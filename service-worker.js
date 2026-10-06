@@ -1,9 +1,13 @@
-const CACHE_NAME = "biblical-study-tools-shell-v16";
+const CACHE_NAME = "biblical-study-tools-shell-v20";
 const APP_SHELL = [
     "./",
     "./index.html",
     "./styles.css",
     "./index.js",
+    "./verse-design.js",
+    "./plan-milestones.js",
+    "./account.html",
+    "./account.js",
     "./discover.html",
     "./discover.js",
     "./videos.html",
@@ -71,7 +75,9 @@ self.addEventListener("message", (event) => {
             } catch {
                 return;
             }
-            if (!ALLOWED_ORIGINS.has(url.origin) || await cache.match(url.href)) return;
+            if (!ALLOWED_ORIGINS.has(url.origin) ||
+                (url.origin === self.location.origin && url.pathname.startsWith("/api/auth/")) ||
+                await cache.match(url.href)) return;
 
             try {
                 const request = new Request(url.href, {
@@ -100,6 +106,7 @@ self.addEventListener("fetch", (event) => {
     const request = event.request;
     const url = new URL(request.url);
     if (request.method !== "GET" || !ALLOWED_ORIGINS.has(url.origin)) return;
+    if (url.origin === self.location.origin && url.pathname.startsWith("/api/auth/")) return;
 
     if (url.origin === self.location.origin && request.mode === "navigate") {
         event.respondWith(

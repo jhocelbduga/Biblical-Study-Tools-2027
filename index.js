@@ -152,7 +152,9 @@ function initialiseNotifications() {
     const countLabel = document.getElementById("notificationCountLabel");
     const inboxFeedback = document.getElementById("notificationInboxFeedback");
     const settingsFeedback = document.getElementById("notificationSettingsFeedback");
-    const readIds = loadStoredArray(readIdsKey).filter(id => notifications.some(notification => notification.id === id));
+    const readIds = loadStoredArray(readIdsKey).filter(id =>
+        notifications.some(notification => notification.id === id) ||
+        (window.PlanMilestones?.notifications() || []).some(notification => notification.id === id));
     const preferences = loadStoredObject(preferencesKey);
     let currentScreen = "inbox";
 
@@ -197,11 +199,12 @@ function initialiseNotifications() {
     }
 
     function renderInbox() {
+        const inboxNotifications = [...(window.PlanMilestones?.notifications() || []), ...notifications];
         const list = document.getElementById("notificationList");
-        const unreadCount = notifications.filter(notification => !readIds.includes(notification.id)).length;
+        const unreadCount = inboxNotifications.filter(notification => !readIds.includes(notification.id)).length;
         list.replaceChildren();
 
-        notifications.forEach((notification) => {
+        inboxNotifications.forEach((notification) => {
             const isRead = readIds.includes(notification.id);
             const item = document.createElement("button");
             item.className = `notification-item${isRead ? "" : " is-unread"}`;
@@ -311,6 +314,7 @@ function initialiseNotifications() {
     }
 
     renderInbox();
+    window.addEventListener("reading-achievements-updated", renderInbox);
     renderPreferences("email");
     renderPreferences("push");
 
@@ -322,7 +326,7 @@ function initialiseNotifications() {
         button.addEventListener("click", () => showScreen(button.dataset.notificationScreen));
     });
     document.getElementById("markNotificationsReadButton").addEventListener("click", () => {
-        const updatedReadIds = notifications.map(notification => notification.id);
+        const updatedReadIds = [...(window.PlanMilestones?.notifications() || []), ...notifications].map(notification => notification.id);
         if (saveState(readIdsKey, updatedReadIds, inboxFeedback)) {
             readIds.splice(0, readIds.length, ...updatedReadIds);
             renderInbox();
@@ -1201,11 +1205,13 @@ function initialiseBibleAnalytics() {
     function updateCompletedDayCount() {
         completedDays = 0;
         let completedPassages = 0;
+        let finishedPlans = 0;
         Object.entries(readingState.plans || {}).forEach(([planId, progress]) => {
             if (progress && Array.isArray(progress.completedDays)) {
                 completedDays += progress.completedDays.length;
                 const plan = READING_PLANS[planId];
                 if (plan) {
+                    if (plan.days.every((day, index) => progress.completedDays.includes(index + 1))) finishedPlans++;
                     plan.days.forEach((day, index) => {
                         completedPassages += completedReadingIndices(plan, progress, index + 1).length;
                     });
@@ -1214,6 +1220,7 @@ function initialiseBibleAnalytics() {
         });
         document.getElementById("statCompletedDays").textContent = formatNumber.format(completedDays);
         document.getElementById("statCompletedPassages").textContent = formatNumber.format(completedPassages);
+        window.PlanMilestones?.update({ days: completedDays, passages: completedPassages, plans: finishedPlans });
     }
 
     try {

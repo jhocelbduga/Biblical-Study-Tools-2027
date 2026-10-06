@@ -8,7 +8,7 @@
   },
   "scripts": {
     "start": "node server.js",
-    "test": "node --test reading-plans.test.js videos.test.js friends.test.js",
-    "check": "node --check server.js && node --check index.js && node --check install.js && node --check videos-data.js && node --check videos.js && node --check watch.js && node --check discover-friends.js && node --check profile-store.js && node --check profile.js && node --check qr-share.js && node --check service-worker.js"
+    "test": "node --test reading-plans.test.js videos.test.js friends.test.js account.test.js navigation.test.js verse-design.test.js plan-milestones.test.js",
+    "check": "node --check server.js && node --check index.js && node --check plan-milestones.js && node --check verse-design.js && node --check install.js && node --check videos-data.js && node --check videos.js && node --check watch.js && node --check discover-friends.js && node --check profile-store.js && node --check profile.js && node --check qr-share.js && node --check auth-config.js && node --check account.js && node --check service-worker.js"
   }
 }

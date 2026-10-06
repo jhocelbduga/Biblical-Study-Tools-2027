@@ -34,20 +34,22 @@
                     <span class="brand-mark" aria-hidden="true"><i class="bi bi-book-half"></i></span>
                     Biblical Study Tools
                 </a>
-                <button class="navbar-toggler menu-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavigation" aria-controls="mainNavigation" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse navigation" id="mainNavigation">
-                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                        <li class="nav-item"><a class="nav-link" href="#home">Home</a></li>
-                        <li class="nav-item"><a class="nav-link" href="discover.html">Discover</a></li>
-                        <li class="nav-item"><a class="nav-link" href="videos.html">Videos</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#verse-generator">Daily verse</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#reading-plans">Plans</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#bible-explorer">Explore</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#statistics">Stats</a></li>
+                <div class="dropdown navigation-menu ms-auto">
+                    <button class="btn btn-outline-secondary navigation-menu-toggle" id="navigationMenu" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-controls="navigationLinks" aria-label="More navigation options">
+                        <i class="bi bi-three-dots" aria-hidden="true"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" id="navigationLinks" aria-labelledby="navigationMenu">
+                        <li><a class="dropdown-item" href="#home">Home</a></li>
+                        <li><a class="dropdown-item" href="discover.html">Discover</a></li>
+                        <li><a class="dropdown-item" href="videos.html">Videos</a></li>
+                        <li><a class="dropdown-item" href="#verse-generator">Daily verses</a></li>
+                        <li><a class="dropdown-item" href="#reading-plans">Plans</a></li>
+                        <li><a class="dropdown-item" href="#bible-explorer">Explore</a></li>
+                        <li><a class="dropdown-item" href="#statistics">Statistics</a></li>
                     </ul>
-                    <div class="navbar-actions d-flex flex-column flex-lg-row gap-2 ms-lg-3">
+                </div>
+                <div class="navbar-actions d-flex flex-row gap-2 ms-lg-3">
+                        <a class="btn btn-outline-primary text-nowrap" href="account.html">Sign in</a>
                         <button class="btn btn-outline-primary text-nowrap" id="subscribeButton" type="button" data-bs-toggle="modal" data-bs-target="#subscribeModal" aria-label="Subscribe to updates">
                             <i class="bi bi-envelope-plus me-1" aria-hidden="true"></i>Subscribe
                         </button>
@@ -64,7 +66,6 @@
                             <i class="bi bi-android2 me-1" aria-hidden="true"></i>Android
                         </button>
                         <small class="text-body-secondary" id="installFeedback" role="status" aria-live="polite"></small>
-                    </div>
                 </div>
             </div>
         </nav>
@@ -277,6 +278,18 @@
             </div>
         </section>
 
+        <section class="card border-0 shadow-sm p-4 mt-4" aria-labelledby="planMilestonesTitle">
+            <h2 class="h4" id="planMilestonesTitle">Reading milestones</h2>
+            <p id="planMilestoneTotals"></p>
+            <p class="fw-semibold" id="planMilestoneCount"></p>
+            <p id="planAchievementFeedback" role="status" aria-live="polite"></p>
+            <details>
+                <summary>View milestone goals</summary>
+                <ul class="mt-3" id="planMilestoneList"></ul>
+            </details>
+            <p class="small text-body-secondary mt-3 mb-0">Achievements and notifications are saved on this device. Earned milestones remain if you undo progress. KJV reader verse milestones are tracked separately in the reader. Notifications are in-app only.</p>
+        </section>
+
         <section class="reading-plan-progress mt-5" id="activeReadingPlan" aria-labelledby="activePlanTitle" aria-live="polite" hidden>
             <div class="card border-0 shadow-sm">
                 <div class="card-body p-4 p-lg-5">
@@ -445,12 +458,36 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body pt-3">
-                    <figure class="verse-card rounded-4 p-4 mb-3">
+                    <figure class="verse-card rounded-4 p-4 mb-3" id="dailyVerseCard">
                         <blockquote class="blockquote mb-3">
                             <p class="mb-0" id="generatedVerseText"></p>
                         </blockquote>
                         <figcaption class="blockquote-footer mb-0" id="generatedVerseReference"></figcaption>
                     </figure>
+                    <details class="mb-3">
+                        <summary class="fw-semibold">Customize verse card</summary>
+                        <div class="row g-2 mt-1">
+                            <div class="col-6">
+                                <label class="form-label" for="verseTheme">Colour theme</label>
+                                <select class="form-select" id="verseTheme">
+                                    <option value="sage">Sage green</option>
+                                    <option value="ocean">Ocean blue</option>
+                                    <option value="parchment">Warm parchment</option>
+                                    <option value="night">Midnight</option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label" for="verseLayout">Card design</label>
+                                <select class="form-select" id="verseLayout">
+                                    <option value="classic">Classic</option>
+                                    <option value="centered">Centered</option>
+                                    <option value="minimal">Minimal</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button class="btn btn-outline-secondary btn-sm mt-3" id="resetVerseDesign" type="button">Reset design</button>
+                        <p class="small mt-2 mb-0" id="verseDesignFeedback" role="status" aria-live="polite">Design choices are saved on this device. Shared links and existing verse images keep their original design.</p>
+                    </details>
                     <p class="small text-body-secondary mb-0" id="verseShareFeedback" role="status" aria-live="polite"></p>
                     <section class="border rounded-4 p-3 mt-3" id="verseShareOptions" aria-labelledby="verseShareOptionsTitle" hidden>
                         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -551,7 +588,9 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="profile-store.js"></script>
+    <script src="plan-milestones.js"></script>
     <script src="index.js"></script>
+    <script src="verse-design.js"></script>
     <script src="install.js"></script>
 </body>
 </html>

@@ -20,17 +20,21 @@
                     <span class="brand-mark" aria-hidden="true"><i class="bi bi-book-half"></i></span>
                     Biblical Study Tools
                 </a>
-                <button class="navbar-toggler menu-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavigation" aria-controls="mainNavigation" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse navigation" id="mainNavigation">
-                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                        <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
-                        <li class="nav-item"><a class="nav-link" href="videos.html">Videos</a></li>
-                        <li class="nav-item"><a class="nav-link" href="index.html#verse-generator">Daily verse</a></li>
-                        <li class="nav-item"><a class="nav-link" href="index.html#reading-plans">Plans</a></li>
+                <div class="dropdown navigation-menu ms-auto">
+                    <button class="btn btn-outline-secondary navigation-menu-toggle" id="navigationMenu" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-controls="navigationLinks" aria-label="More navigation options">
+                        <i class="bi bi-three-dots" aria-hidden="true"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" id="navigationLinks" aria-labelledby="navigationMenu">
+                        <li><a class="dropdown-item" href="index.html#home">Home</a></li>
+                        <li><a class="dropdown-item active" href="discover.html" aria-current="page">Discover</a></li>
+                        <li><a class="dropdown-item" href="videos.html">Videos</a></li>
+                        <li><a class="dropdown-item" href="index.html#verse-generator">Daily verses</a></li>
+                        <li><a class="dropdown-item" href="index.html#reading-plans">Plans</a></li>
+                        <li><a class="dropdown-item" href="index.html#bible-explorer">Explore</a></li>
+                        <li><a class="dropdown-item" href="index.html#statistics">Statistics</a></li>
                     </ul>
                 </div>
+                <a class="btn btn-outline-primary ms-2" href="account.html">Sign in</a>
             </div>
         </nav>
     </header>

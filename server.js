@@ -2,6 +2,7 @@ import { createReadStream, existsSync, readFileSync, statSync } from "node:fs";
 import { createServer } from "node:http";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { getPublicAuthConfig } from "./auth-config.js";
 
 const PUBLIC_DIRECTORY = path.dirname(fileURLToPath(import.meta.url));
 const MAX_BODY_SIZE = 8 * 1024;
@@ -315,6 +316,20 @@ const server = createServer((request, response) => {
         requestUrl = new URL(request.url, `http://${request.headers.host || "localhost"}`);
     } catch {
         sendJson(response, 400, { error: "The requested URL is invalid." });
+        return;
+    }
+
+    if (requestUrl.pathname === "/api/auth/config") {
+        if (request.method !== "GET") {
+            sendJson(response, 405, { error: "Use GET to load account configuration." });
+            return;
+        }
+        try {
+            sendJson(response, 200, getPublicAuthConfig(process.env));
+        } catch (error) {
+            console.error("Account configuration unavailable:", error.message);
+            sendJson(response, 503, { error: "Accounts are not configured yet. The site owner must connect Supabase before registration and login are available." });
+        }
         return;
     }
 

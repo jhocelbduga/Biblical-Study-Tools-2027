@@ -55,6 +55,45 @@
         <div class="row g-3" id="discoverResults"></div>
         <p class="text-center text-body-secondary py-5" id="discoverEmpty" hidden>No verses match your search. Try another word or topic.</p>
 
+        <section class="mt-5" id="discoverFriends" aria-labelledby="discoverFriendsTitle">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                <h2 class="h3 mb-0" id="discoverFriendsTitle"><i class="bi bi-people me-2" aria-hidden="true"></i>Find and invite friends</h2>
+                <a class="btn btn-outline-primary btn-sm" href="profile.html">My profile and friends</a>
+            </div>
+            <p class="text-body-secondary">Search friends saved on this device, select contacts with permission, or invite someone to connect by QR code.</p>
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <button class="btn btn-primary" id="selectFriendContacts" type="button">Choose from contacts</button>
+                <button class="btn btn-outline-primary" id="inviteDiscoverFriends" type="button"><i class="bi bi-qr-code me-1" aria-hidden="true"></i>Invite friends with QR</button>
+            </div>
+            <p class="small text-body-secondary" id="friendContactsHelp">Contacts are selected using your browser's contact picker when supported. You can always add a contact manually below. Nothing is uploaded.</p>
+            <div class="row g-2 mb-3">
+                <div class="col-12 col-md-7">
+                    <label class="form-label" for="discoverFriendSearch">Search friends or selected contacts</label>
+                    <input class="form-control" id="discoverFriendSearch" type="search" placeholder="Name, email, phone, or church">
+                </div>
+                <div class="col-12 col-md-5">
+                    <label class="form-label" for="discoverFriendChurch">Affiliated church</label>
+                    <select class="form-select" id="discoverFriendChurch"><option value="all">All affiliations</option></select>
+                </div>
+            </div>
+            <p class="small text-body-secondary">Church filtering matches affiliations recorded on your saved friends, not a live church-member directory. Add or edit an affiliation below.</p>
+            <p id="discoverFriendFeedback" role="status" aria-live="polite"></p>
+            <p class="small text-body-secondary" id="discoverFriendCount" role="status" aria-live="polite"></p>
+            <ul class="profile-list mb-3" id="discoverFriendResults"></ul>
+            <button class="btn btn-outline-secondary btn-sm mb-3" id="clearSelectedContacts" type="button" hidden>Clear selected contacts</button>
+            <form class="profile-card row g-2 mx-0" id="discoverFriendForm">
+                <h3 class="h5" id="discoverFriendFormTitle">Add a friend manually</h3>
+                <div class="col-12 col-md-4"><label class="form-label" for="discoverFriendName">Name</label><input class="form-control" id="discoverFriendName" maxlength="80" required></div>
+                <div class="col-12 col-md-4"><label class="form-label" for="discoverFriendContact">Email or phone (optional)</label><input class="form-control" id="discoverFriendContact" maxlength="120"></div>
+                <div class="col-12 col-md-4"><label class="form-label" for="discoverFriendAffiliation">Church affiliation (optional)</label><input class="form-control" id="discoverFriendAffiliation" maxlength="120"></div>
+                <div class="col-12 d-flex gap-2">
+                    <button class="btn btn-primary" type="submit" id="saveDiscoverFriend">Save friend</button>
+                    <button class="btn btn-outline-secondary" type="button" id="cancelDiscoverFriendEdit" hidden>Cancel edit</button>
+                </div>
+            </form>
+            <p class="small text-body-secondary mt-3">Friend lists and accepted invitations are local to each device; they do not create a synchronized or mutual friendship. Invitations include your profile name, local profile ID, and church name if provided, but not your contacts. Send the QR image or invitation link to your friend, who can choose whether to accept it.</p>
+        </section>
+
         <section class="mt-5" aria-labelledby="discoverVideoTitle">
             <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
                 <h2 class="h3 mb-0" id="discoverVideoTitle"><i class="bi bi-play-circle me-2" aria-hidden="true"></i>Watch and learn</h2>
@@ -66,7 +105,7 @@
 
         <section class="mt-5" aria-labelledby="churchHeading">
             <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-                <h2 class="h3 mb-0" id="churchHeading"><i class="bi bi-geo-alt me-2" aria-hidden="true"></i>Catholic churches near me</h2>
+                <h2 class="h3 mb-0" id="churchHeading"><i class="bi bi-geo-alt me-2" aria-hidden="true"></i>All Churches near me</h2>
                 <a class="btn btn-outline-primary btn-sm" id="churchSeeAll" href="churches.html" hidden>See all churches <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
             </div>
             <div class="d-flex flex-column flex-md-row gap-2 mb-3">
@@ -103,6 +142,7 @@
     <script src="qrcode.js"></script>
     <script src="profile-store.js"></script>
     <script src="qr-share.js"></script>
+    <script src="discover-friends.js"></script>
     <script src="churches.js"></script>
     <script src="discover-churches.js"></script>
 </body>

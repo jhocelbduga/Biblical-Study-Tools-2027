@@ -42,3 +42,41 @@ test("empty results and resetting filters do not mutate the catalog", () => {
     assert.equal(library.items.length, 12);
     assert.ok(Object.isFrozen(library.items));
 });
+
+function watchPage(search) {
+    const elements = new Map();
+    const document = {
+        getElementById(id) {
+            if (!elements.has(id)) elements.set(id, {
+                hidden: true,
+                setAttribute(name, value) { this[name] = value; }
+            });
+            return elements.get(id);
+        }
+    };
+    const context = vm.createContext({
+        window: { location: { search }, VideoLibrary: library },
+        document, URLSearchParams
+    });
+    vm.runInContext(readFileSync(new URL("./watch.js", import.meta.url), "utf8"), context);
+    return document;
+}
+
+test("watch landing resolves every catalog video to its official provider", () => {
+    for (const item of library.items) {
+        const document = watchPage(`?video=${encodeURIComponent(item.id)}`);
+        assert.equal(document.getElementById("watchTitle").textContent, item.title);
+        assert.equal(document.getElementById("watchOfficialLink").href, item.url);
+        assert.equal(document.getElementById("watchOfficialLink").hidden, false);
+        assert.equal(document.getElementById("watchNotice").hidden, false);
+    }
+});
+
+test("missing and unrecognized video IDs show an error without a playback link", () => {
+    for (const search of ["", "?video=unknown", "?video=https://example.com"]) {
+        const document = watchPage(search);
+        assert.ok(document.getElementById("watchFeedback").textContent);
+        assert.equal(document.getElementById("watchOfficialLink").hidden, true);
+        assert.equal(document.getElementById("watchOfficialLink").href, undefined);
+    }
+});

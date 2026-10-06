@@ -35,11 +35,9 @@
         summary.textContent = item.summary;
         const link = document.createElement("a");
         link.className = "btn btn-outline-primary mt-auto align-self-start";
-        link.href = item.url;
-        link.target = "_blank";
-        link.rel = "noopener noreferrer";
+        link.href = `watch.html?video=${encodeURIComponent(item.id)}`;
         link.textContent = item.type === "Collection" ? "Explore collection" : "Watch video";
-        link.setAttribute("aria-label", `${link.textContent}: ${item.title} (opens Bible App in a new tab)`);
+        link.setAttribute("aria-label", `${link.textContent}: ${item.title}`);
         body.append(meta, title, summary, link);
         article.append(artwork, body);
         column.appendChild(article);

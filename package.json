@@ -8,7 +8,7 @@
   },
   "scripts": {
     "start": "node server.js",
-    "test": "node --test reading-plans.test.js videos.test.js",
-    "check": "node --check server.js && node --check index.js && node --check install.js && node --check videos-data.js && node --check videos.js && node --check service-worker.js"
+    "test": "node --test reading-plans.test.js videos.test.js friends.test.js",
+    "check": "node --check server.js && node --check index.js && node --check install.js && node --check videos-data.js && node --check videos.js && node --check watch.js && node --check discover-friends.js && node --check profile-store.js && node --check profile.js && node --check qr-share.js && node --check service-worker.js"
   }
 }

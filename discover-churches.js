@@ -10,15 +10,15 @@
 
     async function load(location) {
         CF.saveLocation(location);
-        status.textContent = `Looking for Catholic churches near ${location.label}…`;
+        status.textContent = `Looking for churches near ${location.label}…`;
         preview.innerHTML = "";
         seeAll.hidden = true;
         try {
-            const churches = await CF.fetchChurches(location, { catholicOnly: true, radiusMeters: 10000 });
+            const churches = await CF.fetchChurches(location, { catholicOnly: false, radiusMeters: 10000 });
             if (!churches.length) {
-                status.textContent = `No Catholic churches found within 10 km of ${location.label}. Try "See all churches" for a wider search.`;
+                status.textContent = `No churches found within 10 km of ${location.label}. Try "See all churches" for a wider search.`;
             } else {
-                status.textContent = `${CF.plural(churches.length, "Catholic church", "Catholic churches")} near ${location.label}`;
+                status.textContent = `${CF.plural(churches.length, "church", "churches")} near ${location.label}`;
                 preview.innerHTML = churches.slice(0, 3).map(CF.churchCard).join("");
                 CF.fillMissingAddresses(preview);
             }

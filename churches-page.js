@@ -10,7 +10,7 @@
     const filterCatholic = document.getElementById("filterCatholic");
     const filterAll = document.getElementById("filterAll");
     const showMore = document.getElementById("showMore");
-    let catholicOnly = true;
+    let catholicOnly = false;
     let location = CF.getSavedLocation();
     let churches = [];
     let shown = 0;
@@ -88,6 +88,6 @@
 
     CF.attachPlaceSuggest(placeInput, (place) => setLocation(async () => place));
     const params = new URLSearchParams(window.location.search);
-    if (params.get("type") === "all") setFilter(false);
+    setFilter(params.get("type") === "catholic");
     load();
 })();

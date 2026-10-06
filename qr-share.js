@@ -25,7 +25,7 @@
     const text = (value, max) => (typeof value === "string" ? value.replace(/[\u0000-\u001f]/g, " ").trim().slice(0, max) : "");
 
     function friendLink(profile) {
-        return `${base}?friend=${encode({ n: text(profile.name, 80), i: profile.id })}`;
+        return `${base}?friend=${encode({ n: text(profile.name, 80), i: profile.id, c: text(profile.church?.name, 120) })}`;
     }
 
     function churchLink(church) {
@@ -68,11 +68,15 @@
                         <div class="qr-box mx-auto" id="qrShareImage" role="img"></div>
                         <p class="mt-3 mb-1" id="qrShareNote"></p>
                         <p class="small text-body-secondary mb-0" id="qrShareFeedback" role="status" aria-live="polite"></p>
+                        <label class="form-label small mt-3" for="qrShareUrl">Invitation link</label>
+                        <input class="form-control form-control-sm" id="qrShareUrl" type="url" readonly>
                     </div>
                     <div class="modal-footer justify-content-center">
                         <button type="button" class="btn btn-primary" id="qrShareAction" hidden></button>
                         <button type="button" class="btn btn-outline-secondary" id="qrShareCopy"><i class="bi bi-link-45deg me-1" aria-hidden="true"></i>Copy link</button>
                         <button type="button" class="btn btn-outline-secondary" id="qrShareSend" hidden><i class="bi bi-share me-1" aria-hidden="true"></i>Share</button>
+                        <button type="button" class="btn btn-outline-secondary" id="qrShareDownload"><i class="bi bi-download me-1" aria-hidden="true"></i>Download QR</button>
+                        <a class="btn btn-outline-secondary" id="qrShareEmail"><i class="bi bi-envelope me-1" aria-hidden="true"></i>Email invitation</a>
                     </div>
                 </div>
             </div>`;
@@ -84,13 +88,39 @@
             try {
                 await navigator.clipboard.writeText(state.url);
                 feedback.textContent = "Link copied.";
-            } catch {
-                feedback.textContent = "Couldn't copy. Scan the code instead.";
+            } catch (error) {
+                modalEl.querySelector("#qrShareUrl").focus();
+                modalEl.querySelector("#qrShareUrl").select();
+                feedback.textContent = "Couldn't copy automatically. Copy the selected invitation link manually.";
+                console.error("Unable to copy QR invitation:", error);
             }
         });
         const send = modalEl.querySelector("#qrShareSend");
         send.hidden = !navigator.share;
-        send.addEventListener("click", () => navigator.share({ title: state.title, url: state.url }).catch(() => {}));
+        send.addEventListener("click", async () => {
+            send.disabled = true;
+            try {
+                await navigator.share({ title: state.title, url: state.url });
+                feedback.textContent = "Invitation sent to your selected sharing app.";
+            } catch (error) {
+                feedback.textContent = error.name === "AbortError"
+                    ? "Sharing canceled." : "Could not open sharing. Copy the invitation link or download the QR code.";
+                if (error.name !== "AbortError") console.error("Unable to share QR invitation:", error);
+            } finally {
+                send.disabled = false;
+            }
+        });
+        modalEl.querySelector("#qrShareDownload").addEventListener("click", () => {
+            const url = URL.createObjectURL(new Blob([qrSvg(state.url)], { type: "image/svg+xml" }));
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = "biblical-study-tools-invitation.svg";
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+            feedback.textContent = "QR image download requested. Attach the image to your message.";
+        });
         modalEl.querySelector("#qrShareAction").addEventListener("click", () => {
             if (state.onAction) feedback.textContent = state.onAction() || "";
         });
@@ -103,6 +133,8 @@
         modalEl.querySelector("#qrShareImage").innerHTML = qrSvg(url);
         modalEl.querySelector("#qrShareImage").setAttribute("aria-label", `QR code: ${title}`);
         modalEl.querySelector("#qrShareNote").textContent = note || "";
+        modalEl.querySelector("#qrShareUrl").value = url;
+        modalEl.querySelector("#qrShareEmail").href = `mailto:?${new URLSearchParams({ subject: title, body: `${note || title}\n\n${url}` })}`;
         modalEl.querySelector("#qrShareFeedback").textContent = "";
         const action = modalEl.querySelector("#qrShareAction");
         action.hidden = !actionLabel;

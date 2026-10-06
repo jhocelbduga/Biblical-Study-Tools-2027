@@ -74,7 +74,7 @@
 
     function renderFriends() {
         $("friendList").innerHTML = profile.friends.length
-            ? profile.friends.map((f) => `<li class="profile-item"><span class="d-flex align-items-center gap-2"><span class="profile-avatar-small" aria-hidden="true">${esc(PS.initials(f.name) || "?")}</span><span><strong>${esc(f.name)}</strong>${f.contact ? `<br><small class="text-body-secondary">${esc(f.contact)}</small>` : ""}</span></span>
+            ? profile.friends.map((f) => `<li class="profile-item"><span class="d-flex align-items-center gap-2"><span class="profile-avatar-small" aria-hidden="true">${esc(PS.initials(f.name) || "?")}</span><span><strong>${esc(f.name)}</strong>${f.contact ? `<br><small class="text-body-secondary">${esc(f.contact)}</small>` : ""}${f.church ? `<br><small class="text-body-secondary">${esc(f.church)}</small>` : ""}</span></span>
                 <button class="btn btn-sm btn-outline-danger" type="button" data-remove-friend="${esc(f.id)}" aria-label="Remove ${esc(f.name)}"><i class="bi bi-person-dash" aria-hidden="true"></i></button></li>`).join("")
             : empty("No friends yet. Add someone above.");
     }
@@ -207,7 +207,13 @@
             $("inviteBody").innerHTML = `<p class="mb-0"><strong>${esc(name)}</strong> would like to be your friend.</p>`;
             fresh.textContent = "Add friend";
             fresh.addEventListener("click", () => {
-                const result = PS.addFriend({ id: QrShare.text(data.i, 40), name, via: "qr" });
+                const result = PS.addFriend({ id: QrShare.text(data.i, 40), name, church: QrShare.text(data.c, 120), via: "qr" });
+                if (result.status === "error" || result.status === "invalid") {
+                    feedback.textContent = "Could not save this friend request. Check browser storage and try again.";
+                    console.error("Unable to save friend request:", result.status);
+                    inviteModal.hide();
+                    return;
+                }
                 inviteModal.hide();
                 feedback.textContent = result.status === "self" ? "That's your own QR code."
                     : result.status === "exists" ? `${name} is already your friend.`

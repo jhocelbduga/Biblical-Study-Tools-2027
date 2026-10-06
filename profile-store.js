@@ -95,11 +95,19 @@
         const profile = load();
         if (friend.id && friend.id === profile.id) return { status: "self" };
         if (friend.id && profile.friends.some((f) => f.remoteId === friend.id)) return { status: "exists" };
+        const name = String(friend.name || "").trim().slice(0, 80);
+        if (!name) return { status: "invalid" };
+        const contact = String(friend.contact || "").trim().slice(0, 120);
+        const church = String(friend.church || "").trim().slice(0, 120);
+        if (!friend.id && profile.friends.some(f =>
+            f.name.toLocaleLowerCase() === name.toLocaleLowerCase() &&
+            (f.contact || "").toLocaleLowerCase() === contact.toLocaleLowerCase()
+        )) return { status: "exists" };
         const at = new Date().toISOString();
-        profile.friends.unshift({ id: uid(), remoteId: friend.id || "", name: friend.name, contact: friend.contact || "", at });
-        profile.activity.unshift({ id: uid(), text: `Added ${friend.name} as a friend${friend.via === "qr" ? " via QR code" : ""}`, at });
+        profile.friends.unshift({ id: uid(), remoteId: friend.id || "", name, contact, church, at });
+        profile.activity.unshift({ id: uid(), text: `Added ${name} as a friend${friend.via === "qr" ? " via QR code" : ""}`, at });
         profile.activity = profile.activity.slice(0, MAX_ITEMS);
-        save(profile);
+        if (!save(profile)) return { status: "error" };
         return { status: "added" };
     }
 

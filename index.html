@@ -29,12 +29,18 @@
 <body>
     <header>
         <nav class="navbar navbar-expand-lg site-navbar">
-            <div class="container">
+            <div class="container header-toolbar">
+                <a class="profile-button" id="profileButton" href="profile.html" aria-label="My profile"><span class="profile-avatar" data-profile-avatar><i class="bi bi-person-fill" aria-hidden="true"></i></span></a>
                 <a class="navbar-brand fw-bold" href="#home">
                     <span class="brand-mark" aria-hidden="true"><i class="bi bi-book-half"></i></span>
-                    Biblical Study Tools
+                    <span class="header-brand-title">Biblical Study Tools</span>
                 </a>
-                <div class="dropdown navigation-menu ms-auto">
+                <button class="btn btn-outline-secondary text-nowrap notification-bell ms-auto" id="notificationsButton" type="button" data-bs-toggle="modal" data-bs-target="#notificationsModal" aria-label="Notifications, 3 unread">
+                    <i class="bi bi-bell" aria-hidden="true"></i>
+                    <span class="notification-badge" id="notificationBadge" aria-hidden="true">3</span>
+                    <span class="visually-hidden" id="notificationCountLabel">3 unread notifications</span>
+                </button>
+                <div class="dropdown navigation-menu">
                     <button class="btn btn-outline-secondary navigation-menu-toggle" id="navigationMenu" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-controls="navigationLinks" aria-label="More navigation options">
                         <i class="bi bi-three-dots" aria-hidden="true"></i>
                     </button>
@@ -48,17 +54,16 @@
                         <li><a class="dropdown-item" href="#statistics">Statistics</a></li>
                     </ul>
                 </div>
-                <div class="navbar-actions d-flex flex-row gap-2 ms-lg-3">
-                        <a class="btn btn-outline-primary text-nowrap" href="account.html">Sign in</a>
+                <div class="dropdown navigation-menu header-actions-menu">
+                    <button class="btn btn-outline-secondary navigation-menu-toggle" id="headerActionsToggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" aria-controls="headerActions" aria-label="Account and app options">
+                        <i class="bi bi-list" aria-hidden="true"></i>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end navbar-actions" id="headerActions" aria-labelledby="headerActionsToggle">
+                        <a class="btn btn-outline-primary text-nowrap" data-header-sign-in href="account.html">Sign in</a>
+                        <a class="btn btn-outline-primary text-nowrap" data-header-account href="account.html" hidden>My account</a>
                         <button class="btn btn-outline-primary text-nowrap" id="subscribeButton" type="button" data-bs-toggle="modal" data-bs-target="#subscribeModal" aria-label="Subscribe to updates">
                             <i class="bi bi-envelope-plus me-1" aria-hidden="true"></i>Subscribe
                         </button>
-                        <button class="btn btn-outline-secondary text-nowrap notification-bell" id="notificationsButton" type="button" data-bs-toggle="modal" data-bs-target="#notificationsModal" aria-label="Notifications, 3 unread">
-                            <i class="bi bi-bell" aria-hidden="true"></i>
-                            <span class="notification-badge" id="notificationBadge" aria-hidden="true">3</span>
-                            <span class="visually-hidden" id="notificationCountLabel">3 unread notifications</span>
-                        </button>
-                        <a class="profile-button" id="profileButton" href="profile.html" aria-label="My profile"><span class="profile-avatar" data-profile-avatar><i class="bi bi-person-fill" aria-hidden="true"></i></span></a>
                         <button class="btn btn-outline-secondary text-nowrap" id="appleInstallButton" type="button" aria-label="Install on Apple">
                             <i class="bi bi-apple me-1" aria-hidden="true"></i>Apple
                         </button>
@@ -66,6 +71,8 @@
                             <i class="bi bi-android2 me-1" aria-hidden="true"></i>Android
                         </button>
                         <small class="text-body-secondary" id="installFeedback" role="status" aria-live="polite"></small>
+                        <small class="text-body-secondary" id="headerStateFeedback" role="status" aria-live="polite"></small>
+                    </div>
                 </div>
             </div>
         </nav>
@@ -84,6 +91,7 @@
                     </div>
                     <div class="modal-body">
                         <p class="text-body-secondary">Receive occasional Bible study resources and updates.</p>
+                        <p class="small">Prefer a Google (Gmail) or Facebook account? <a href="account.html">Sign in with your provider</a>, then choose whether to subscribe. Social sign-in does not enroll you automatically.</p>
                         <div class="mb-3">
                             <label class="form-label" for="subscriberName">Your name</label>
                             <input class="form-control" id="subscriberName" name="name" type="text" autocomplete="name" maxlength="100" required>
@@ -592,5 +600,6 @@
     <script src="index.js"></script>
     <script src="verse-design.js"></script>
     <script src="install.js"></script>
+    <script type="module" src="header-state.js"></script>
 </body>
 </html>

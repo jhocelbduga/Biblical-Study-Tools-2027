@@ -38,3 +38,16 @@ test("home account, subscription, notifications, profile, and install controls a
     }
     assert.match(home, /href="account.html">Sign in<\/a>/);
 });
+
+test("home header orders profile, branding, bell, ellipsis and hamburger with actions inside the menu", () => {
+    const header = home.slice(home.indexOf("<header>"), home.indexOf("</header>"));
+    const positions = ['id="profileButton"', 'class="navbar-brand', 'id="notificationsButton"', 'id="navigationMenu"', 'id="headerActionsToggle"']
+        .map(marker => header.indexOf(marker));
+    assert.ok(positions.every((position, index) => position >= 0 && (index === 0 || position > positions[index - 1])));
+    const menuStart = header.indexOf('id="headerActions"');
+    for (const id of ["subscribeButton", "appleInstallButton", "androidInstallButton"]) {
+        assert.ok(header.indexOf(`id="${id}"`) > menuStart);
+    }
+    assert.ok(header.indexOf("data-header-sign-in") > menuStart);
+    assert.match(header, /bi bi-list" aria-hidden="true"/);
+});

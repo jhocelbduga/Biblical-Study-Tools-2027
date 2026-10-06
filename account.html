@@ -30,8 +30,18 @@
                     <a class="btn btn-outline-primary" href="profile.html">My local profile</a>
                     <button class="btn btn-outline-secondary" id="signOutAccount" type="button">Sign out</button>
                 </div>
+                <section class="border rounded p-3 mb-3" id="accountNewsletterPrompt" aria-labelledby="accountNewsletterTitle" hidden>
+                    <h3 class="h6" id="accountNewsletterTitle">Would you like Bible study updates?</h3>
+                    <p class="small">Signing in does not subscribe you. You can optionally open the newsletter form, review your details, and choose Subscribe. A confirmation email follows.</p>
+                    <a class="btn btn-outline-primary btn-sm" href="index.html?subscribe=1">Open subscription form</a>
+                </section>
             </section>
             <div id="accountForms">
+                <div class="d-grid gap-2 mb-3" id="socialAccountOptions">
+                    <button class="btn btn-outline-primary" data-auth-provider="google" type="button" disabled><i class="bi bi-google me-1" aria-hidden="true"></i>Continue with Google (Gmail)</button>
+                    <button class="btn btn-outline-primary" data-auth-provider="facebook" type="button" disabled><i class="bi bi-facebook me-1" aria-hidden="true"></i>Continue with Facebook</button>
+                    <p class="small text-body-secondary mb-0">Sign in or create an account with your provider. Newsletter subscription is optional and separate.</p>
+                </div>
                 <div class="d-flex flex-wrap gap-2 mb-4" role="group" aria-label="Account options">
                     <button class="btn btn-outline-primary" data-account-mode="login" type="button" disabled>Sign in</button>
                     <button class="btn btn-outline-primary" data-account-mode="register" type="button" disabled>Create account</button>

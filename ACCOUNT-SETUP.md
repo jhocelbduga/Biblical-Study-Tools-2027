@@ -27,6 +27,38 @@ Never use a secret key or service-role key. The server rejects non-publishable k
 The public configuration endpoint returns only the project URL and publishable key.
 Do not place environment files in the app directory: this server serves static files.
 
+## Google and Facebook sign-in
+
+Social sign-in buttons use Supabase OAuth with PKCE. They do not automatically
+subscribe users to the newsletter. After sign-in, the account page offers an
+optional link to the newsletter form; only its explicit submission enrolls the
+address in the Mailchimp confirmation flow.
+
+1. In Google Cloud, create an OAuth client for a web application. Configure its
+   consent screen and the authorized redirect URI shown by Supabase for the
+   Google provider (your Supabase auth callback, not the app account page).
+2. Enable Google in Supabase Authentication providers and enter the Google
+   client ID and secret there. Google login supports Google accounts, including
+   Gmail; the app does not request access to Gmail messages.
+3. Create a Meta/Facebook developer app and configure Facebook Login. Set the
+   valid OAuth redirect URI to the callback shown by Supabase. Enable Facebook
+   in Supabase and enter the provider app ID and secret there.
+4. Follow each provider's current production consent, app-domain, privacy-policy,
+   review, and publishing requirements. Development/test mode may restrict who
+   can sign in. Facebook may not provide an email for every account; users can
+   enter their newsletter email manually.
+5. Keep `account.html` allowed as an application redirect as described above,
+   including exact localhost URLs used for development.
+6. Keep provider secrets only in the provider/Supabase dashboard. Never add
+   Google or Facebook secrets to client scripts or the public config endpoint.
+7. Test each provider with a permitted test account: redirect, callback, declined
+   access, session reload, sign-out, and optional newsletter submission. Confirm
+   no Mailchimp request is made merely by signing in.
+
+OAuth buttons require provider configuration in addition to the Supabase project.
+Disabled/unconfigured providers return explicit errors. Existing email/password
+sign-in remains available.
+
 ## Running locally
 
 Set the two variables in your process environment and run `npm start`. Open
@@ -54,3 +86,6 @@ reset from that device. Account operations require internet access.
 Any future user-data tables need explicit authorization and row-level security
 policies before using the public key. This integration does not create tables or
 change authorization of existing data.
+
+For the shared community directory and membership tables, follow the separate
+[community setup guide](./COMMUNITY-SETUP.md) after completing account setup.

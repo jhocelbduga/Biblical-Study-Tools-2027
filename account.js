@@ -1,6 +1,16 @@
+import { connectSupabase } from "./supabase-client.js";
+
 const $ = id => document.getElementById(id);
 const feedback = $("accountFeedback");
 const modeButtons = [...document.querySelectorAll("[data-account-mode]")];
+const providerButtons = [...document.querySelectorAll("[data-auth-provider]")];
+let subscribed = false;
+try {
+    subscribed = localStorage.getItem("bstSubscribed") === "1";
+} catch (error) {
+    console.error("Unable to load account subscription status:", error);
+    feedback.textContent = "Saved newsletter status could not be loaded; subscription remains optional.";
+}
 let client;
 let session = null;
 let mode = "login";
@@ -10,6 +20,9 @@ let busy = false;
 function render() {
     $("signedInAccount").hidden = !session;
     $("accountForms").hidden = Boolean(session) && !recovery;
+    $("accountNewsletterPrompt").hidden = !session || recovery || subscribed;
+    $("socialAccountOptions").hidden = recovery || ["reset", "update"].includes(mode);
+    providerButtons.forEach(button => { button.disabled = !client || busy || recovery; });
     $("accountEmail").textContent = session?.user.email || "";
     $("accountNameField").hidden = mode !== "register";
     $("accountName").required = mode === "register";
@@ -47,23 +60,7 @@ function changeMode(nextMode) {
 async function connect() {
     render();
     try {
-        if (window.location.protocol === "file:") {
-            throw new Error("Open this page through the Node server or the Render HTTPS site. Accounts are not available from a local file or GitHub Pages.");
-        }
-        const response = await fetch("/api/auth/config", { cache: "no-store" });
-        if (!response.ok) {
-            let message = "Account services are unavailable. This page requires the configured Node server.";
-            if (response.headers.get("content-type")?.includes("application/json")) {
-                const result = await response.json();
-                if (result.error) message = result.error;
-            }
-            throw new Error(message);
-        }
-        const config = await response.json();
-        const { createClient } = await import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/+esm");
-        client = createClient(config.url, config.publishableKey, {
-            auth: { flowType: "pkce", persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
-        });
+        client = await connectSupabase();
         client.auth.onAuthStateChange((event, nextSession) => {
             session = nextSession;
             if (event === "PASSWORD_RECOVERY") {
@@ -99,6 +96,32 @@ async function connect() {
 }
 
 modeButtons.forEach(button => button.addEventListener("click", () => changeMode(button.dataset.accountMode)));
+providerButtons.forEach(button => button.addEventListener("click", async () => {
+    if (!client || busy || recovery) return;
+    busy = true;
+    render();
+    try {
+        const provider = button.dataset.authProvider;
+        const { data, error } = await client.auth.signInWithOAuth({
+            provider,
+            options: {
+                redirectTo: new URL("account.html", window.location.href).href,
+                skipBrowserRedirect: true,
+                ...(provider === "google" ? { queryParams: { prompt: "select_account" } } : {})
+            }
+        });
+        if (error) throw error;
+        if (!data?.url) throw new Error("The provider did not return a sign-in URL. Ask the site owner to check provider settings.");
+        feedback.textContent = `Opening ${provider === "google" ? "Google" : "Facebook"} sign-in...`;
+        window.location.assign(data.url);
+    } catch (error) {
+        feedback.textContent = error.message || "Social sign-in could not be started. Please try again.";
+        console.error("Unable to start social sign-in:", error);
+    } finally {
+        busy = false;
+        render();
+    }
+}));
 $("retryAccount").addEventListener("click", () => window.location.reload());
 $("accountConfirmPassword").addEventListener("input", () => $("accountConfirmPassword").setCustomValidity(""));
 $("accountPassword").addEventListener("input", () => $("accountConfirmPassword").setCustomValidity(""));

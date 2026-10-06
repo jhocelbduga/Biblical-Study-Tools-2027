@@ -15,12 +15,14 @@
 <body>
     <header>
         <nav class="navbar navbar-expand-lg site-navbar">
-            <div class="container">
+            <div class="container header-toolbar">
+                <a class="profile-button" href="profile.html" aria-label="My profile"><span class="profile-avatar" data-profile-avatar><i class="bi bi-person-fill" aria-hidden="true"></i></span></a>
                 <a class="navbar-brand fw-bold" href="index.html">
                     <span class="brand-mark" aria-hidden="true"><i class="bi bi-book-half"></i></span>
-                    Biblical Study Tools
+                    <span class="header-brand-title">Biblical Study Tools</span>
                 </a>
-                <div class="dropdown navigation-menu ms-auto">
+                <a class="btn btn-outline-secondary notification-bell ms-auto" href="index.html?notifications=1" aria-label="Notifications"><i class="bi bi-bell" aria-hidden="true"></i></a>
+                <div class="dropdown navigation-menu">
                     <button class="btn btn-outline-secondary navigation-menu-toggle" id="navigationMenu" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-controls="navigationLinks" aria-label="More navigation options">
                         <i class="bi bi-three-dots" aria-hidden="true"></i>
                     </button>
@@ -34,7 +36,15 @@
                         <li><a class="dropdown-item" href="index.html#statistics">Statistics</a></li>
                     </ul>
                 </div>
-                <a class="btn btn-outline-primary ms-2" href="account.html">Sign in</a>
+                <div class="dropdown navigation-menu header-actions-menu">
+                    <button class="btn btn-outline-secondary navigation-menu-toggle" id="headerActionsToggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-controls="headerActions" aria-label="Account and app options"><i class="bi bi-list" aria-hidden="true"></i></button>
+                    <div class="dropdown-menu dropdown-menu-end navbar-actions" id="headerActions" aria-labelledby="headerActionsToggle">
+                        <a class="btn btn-outline-primary" data-header-sign-in href="account.html">Sign in</a>
+                        <a class="btn btn-outline-primary" data-header-account href="account.html" hidden>My account</a>
+                        <a class="btn btn-outline-primary" href="index.html?subscribe=1">Newsletter options</a>
+                        <small class="text-body-secondary" id="headerStateFeedback" role="status" aria-live="polite"></small>
+                    </div>
+                </div>
             </div>
         </nav>
     </header>
@@ -98,6 +108,55 @@
             <p class="small text-body-secondary mt-3">Friend lists and accepted invitations are local to each device; they do not create a synchronized or mutual friendship. Invitations include your profile name, local profile ID, and church name if provided, but not your contacts. Send the QR image or invitation link to your friend, who can choose whether to accept it.</p>
         </section>
 
+        <section class="mt-5" aria-labelledby="communityTitle">
+            <h2 class="h3" id="communityTitle">Communities</h2>
+            <p>Create a public Bible study community, join others, or search registered communities near you.</p>
+            <p id="communityAccountNotice"><a href="account.html">Sign in</a> to create, join, or leave communities. Browsing is public.</p>
+            <form id="communitySearch" role="search">
+                <fieldset id="communitySearchFields" disabled>
+                    <label class="form-label" for="communityQuery">Search all communities</label>
+                    <div class="input-group mb-3">
+                        <input class="form-control" id="communityQuery" type="search" maxlength="100" placeholder="Name, description, city or town">
+                        <button class="btn btn-primary" type="submit">Search</button>
+                    </div>
+                    <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+                        <button class="btn btn-outline-primary" id="communityNearMe" type="button">Communities near me</button>
+                        <label for="communityRadius">Within</label>
+                        <select class="form-select w-auto" id="communityRadius">
+                            <option value="10">10 km</option><option value="25" selected>25 km</option><option value="50">50 km</option><option value="100">100 km</option>
+                        </select>
+                        <button class="btn btn-outline-secondary" id="communityClearLocation" type="button">Clear nearby filter</button>
+                        <label class="form-check-label"><input class="form-check-input me-1" id="communityJoinedOnly" type="checkbox">My joined communities</label>
+                    </div>
+                </fieldset>
+            </form>
+            <p class="small text-body-secondary" id="communityLocationStatus">Searching all registered communities. Nearby search excludes communities without a meeting location.</p>
+            <p id="communityFeedback" role="status" aria-live="polite">Connecting to shared communities...</p>
+            <div id="communityResults"></div>
+            <details class="card p-3">
+                <summary class="fw-semibold">Create / add a community</summary>
+                <form class="mt-3" id="communityCreate">
+                    <fieldset id="communityFields" disabled>
+                        <label class="form-label" for="communityName">Community name</label>
+                        <input class="form-control mb-3" id="communityName" minlength="3" maxlength="80" required>
+                        <label class="form-label" for="communityDescription">Description</label>
+                        <textarea class="form-control mb-3" id="communityDescription" minlength="10" maxlength="1000" required></textarea>
+                        <label class="form-label" for="communityCity">City or town</label>
+                        <input class="form-control mb-3" id="communityCity" minlength="2" maxlength="120" required>
+                        <p class="small">These details are public. Do not include private contact details or a home address. All communities are open to signed-in users.</p>
+                        <div class="d-flex flex-wrap gap-2">
+                            <button class="btn btn-outline-secondary" id="communityUseMeetingLocation" type="button">Use my location as public meeting venue</button>
+                            <button class="btn btn-outline-secondary" id="communityRemoveMeetingLocation" type="button">Remove meeting location</button>
+                        </div>
+                        <p class="small mt-2" id="communityMeetingStatus">No meeting location selected. Your community will appear in directory search, but not nearby search.</p>
+                        <button class="btn btn-primary" type="submit">Create community</button>
+                    </fieldset>
+                    <p id="communityCreateFeedback" role="status" aria-live="polite"></p>
+                </form>
+            </details>
+            <p class="small text-body-secondary mt-3">This directory contains communities created in this app, not every community in the world. Membership is shared through Supabase, unlike device-local friends. Nearby search sends your coordinates to the database for distance filtering, but does not save them as your profile. Optional meeting coordinates are public venue information stored with the community.</p>
+        </section>
+
         <section class="mt-5" aria-labelledby="discoverVideoTitle">
             <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
                 <h2 class="h3 mb-0" id="discoverVideoTitle"><i class="bi bi-play-circle me-2" aria-hidden="true"></i>Watch and learn</h2>
@@ -149,5 +208,7 @@
     <script src="discover-friends.js"></script>
     <script src="churches.js"></script>
     <script src="discover-churches.js"></script>
+    <script type="module" src="communities.js"></script>
+    <script type="module" src="header-state.js"></script>
 </body>
 </html>

@@ -93,13 +93,49 @@ body {
     border-radius: 0.35rem;
 }
 
-.navbar-actions {
-    flex-wrap: wrap;
-    flex: 1 1 auto;
+.header-toolbar {
+    flex-wrap: nowrap !important;
+    gap: 0.5rem;
+}
+
+.header-toolbar .navbar-brand {
+    min-width: 0;
+    margin-right: 0;
+}
+
+.header-toolbar .brand-mark,
+.header-toolbar .profile-button,
+.header-toolbar .navigation-menu {
+    flex-shrink: 0;
+}
+
+.header-toolbar .notification-bell {
+    min-width: 44px;
+    min-height: 44px;
+    flex-shrink: 0;
+}
+
+.navbar-actions.show {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.header-actions-menu .dropdown-menu {
+    width: 16rem;
+    max-width: calc(100vw - 1.5rem);
 }
 
 #installFeedback:empty {
     display: none;
+}
+
+#headerStateFeedback:empty {
+    display: none;
+}
+
+.navbar-actions #headerStateFeedback {
+    flex-basis: 100%;
 }
 
 .navbar-actions #installFeedback {
@@ -113,17 +149,25 @@ body {
         margin-right: 0.25rem;
     }
 
-    .navbar-actions {
-        display: grid !important;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 0.5rem !important;
-        margin-left: 0 !important;
-        margin-top: 0.75rem;
-        flex-basis: 100%;
+    .header-toolbar .header-brand-title {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    @media (max-width: 575.98px) {
+        .header-toolbar .header-brand-title {
+            display: none;
+        }
+
+        .header-toolbar .navbar-brand {
+            flex: 1;
+        }
     }
 
     .navbar-actions #subscribeButton,
-    .navbar-actions #installFeedback {
+    .navbar-actions #installFeedback,
+    .navbar-actions #headerStateFeedback {
         grid-column: 1 / -1;
     }
 

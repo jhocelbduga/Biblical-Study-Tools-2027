@@ -14,6 +14,9 @@ function initialiseApp() {
     initialiseBibleAnalytics();
     initialiseSubscription();
     initialiseNotifications();
+    if (new URLSearchParams(window.location.search).get("notifications") === "1") {
+        bootstrap.Modal.getOrCreateInstance(document.getElementById("notificationsModal")).show();
+    }
     initialiseInviteLanding();
 
     console.log("Biblical Study Tools Loaded");
@@ -85,9 +88,15 @@ function initialiseSubscription() {
             }
 
             form.reset();
-            localStorage.setItem(SUBSCRIBED_KEY, "1");
+            window.dispatchEvent(new CustomEvent("subscription-status-updated"));
             feedback.className = "small mt-3 mb-0 text-success";
             feedback.textContent = result.message;
+            try {
+                localStorage.setItem(SUBSCRIBED_KEY, "1");
+            } catch (error) {
+                feedback.textContent += " Your request succeeded, but subscription status could not be saved on this device.";
+                console.error("Unable to save subscription status:", error);
+            }
         } catch (error) {
             feedback.className = "small mt-3 mb-0 text-danger";
             feedback.textContent = error instanceof Error

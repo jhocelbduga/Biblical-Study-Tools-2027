@@ -478,12 +478,14 @@ function initialiseVerseGenerator() {
             for (const type of ["verse", "highlight", "image"]) {
                 const save = document.createElement("button");
                 save.type = "button";
-                save.className = "btn btn-outline-primary btn-sm";
+                save.className = "dropdown-item";
                 window.SavedStore.attach(save, {
                     type, id: verse.id, title: verse.reference, reference: verse.reference,
                     body: verse.text, ...(type === "image" ? { image: `images/verses/${verse.id}.png` } : {})
                 }, feedback);
-                savedActions.append(save);
+                const item = document.createElement("li");
+                item.append(save);
+                savedActions.append(item);
             }
             try { verseText.classList.toggle("saved-highlight", window.SavedStore.has("highlight", verse.id)); }
             catch (error) { console.error("Unable to restore verse highlight:", error); }

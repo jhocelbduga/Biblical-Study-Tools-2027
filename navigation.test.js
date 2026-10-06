@@ -13,6 +13,23 @@ const destinations = [
 ];
 const home = readFileSync(new URL("./index.html", import.meta.url), "utf8");
 
+test("Daily Verse groups saves and verse actions in accessible menus while keeping Share separate", () => {
+    assert.match(home, /id="verseSavedToggle"[^>]*data-bs-toggle="dropdown"[^>]*aria-expanded="false"[^>]*aria-controls="verseSavedActions"[^>]*aria-label="Save verse options"/);
+    assert.match(home, /<ul class="dropdown-menu" id="verseSavedActions" aria-labelledby="verseSavedToggle"><\/ul>/);
+    assert.match(home, /id="verseActionsToggle"[^>]*data-bs-toggle="dropdown"[^>]*aria-expanded="false"[^>]*aria-controls="verseActions"[^>]*aria-label="Verse actions"/);
+    const menu = home.match(/<ul[^>]*id="verseActions"[^>]*>([\s\S]*?)<\/ul>/)[1];
+    for (const id of ["copyVerseButton", "anotherVerseButton", "postVerseToFeed", "reflectVerseToFeed"]) {
+        assert.match(menu, new RegExp(`<button class="dropdown-item" id="${id}"`));
+        assert.equal(home.split(`id="${id}"`).length, 2);
+    }
+    assert.ok(!menu.includes('id="shareVerseButton"'));
+    assert.match(home, /id="shareVerseButton"[^>]*aria-expanded="false"[^>]*aria-controls="verseShareOptions"/);
+    const script = readFileSync(new URL("./index.js", import.meta.url), "utf8");
+    assert.match(script, /for \(const type of \["verse", "highlight", "image"\]\)/);
+    assert.match(script, /save.className = "dropdown-item"/);
+    assert.match(script, /const item = document.createElement\("li"\);\s*item.append\(save\);\s*savedActions.append\(item\)/);
+});
+
 for (const page of ["index.html", "discover.html", "videos.html", "profile.html", "churches.html"]) {
     test(`${page} provides all seven destinations in its accessible ellipsis dropdown`, () => {
         const html = readFileSync(new URL(page, import.meta.url), "utf8");

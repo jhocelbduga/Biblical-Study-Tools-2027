@@ -570,7 +570,6 @@
                         <p class="small mt-2 mb-0" id="verseDesignFeedback" role="status" aria-live="polite">Design choices are saved on this device. Shared links and existing verse images keep their original design.</p>
                     </details>
                     <p class="small text-body-secondary mb-0" id="verseShareFeedback" role="status" aria-live="polite"></p>
-                    <div class="d-flex flex-wrap gap-2 mt-3" id="verseSavedActions"></div>
                     <section class="border rounded-4 p-3 mt-3" id="verseShareOptions" aria-labelledby="verseShareOptionsTitle" hidden>
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h3 class="h5 mb-0" id="verseShareOptionsTitle">Share this verse</h3>
@@ -586,14 +585,23 @@
                     </section>
                 </div>
                 <div class="modal-footer border-0 pt-0 flex-wrap">
-                    <button class="btn btn-outline-secondary me-auto" id="copyVerseButton" type="button">
-                        <i class="bi bi-copy me-1" aria-hidden="true"></i>Copy verse
-                    </button>
-                    <button class="btn btn-outline-primary" id="anotherVerseButton" type="button">
-                        <i class="bi bi-shuffle me-1" aria-hidden="true"></i>Another verse
-                    </button>
-                    <button class="btn btn-outline-primary" id="postVerseToFeed" type="button">Post to Home Feed</button>
-                    <button class="btn btn-outline-primary" id="reflectVerseToFeed" type="button">Write reflection</button>
+                    <div class="dropdown me-auto">
+                        <button class="btn btn-outline-secondary" id="verseSavedToggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-controls="verseSavedActions" aria-label="Save verse options">
+                            <i class="bi bi-three-dots" aria-hidden="true"></i>
+                        </button>
+                        <ul class="dropdown-menu" id="verseSavedActions" aria-labelledby="verseSavedToggle"></ul>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary" id="verseActionsToggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-controls="verseActions" aria-label="Verse actions">
+                            <i class="bi bi-list" aria-hidden="true"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" id="verseActions" aria-labelledby="verseActionsToggle">
+                            <li><button class="dropdown-item" id="copyVerseButton" type="button"><i class="bi bi-copy me-1" aria-hidden="true"></i>Copy verse</button></li>
+                            <li><button class="dropdown-item" id="anotherVerseButton" type="button"><i class="bi bi-shuffle me-1" aria-hidden="true"></i>Another verse</button></li>
+                            <li><button class="dropdown-item" id="postVerseToFeed" type="button"><i class="bi bi-house me-1" aria-hidden="true"></i>Post to Home Feed</button></li>
+                            <li><button class="dropdown-item" id="reflectVerseToFeed" type="button"><i class="bi bi-pencil-square me-1" aria-hidden="true"></i>Write reflection</button></li>
+                        </ul>
+                    </div>
                     <button class="btn btn-primary" id="shareVerseButton" type="button" aria-expanded="false" aria-controls="verseShareOptions">
                         <i class="bi bi-share me-1" aria-hidden="true"></i>Share
                     </button>

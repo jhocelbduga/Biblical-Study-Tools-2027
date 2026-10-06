@@ -66,6 +66,8 @@ configuration or newsletter subscription endpoints.
 
 - Find a random passage from a curated collection of KJV verses.
 - Read its Scripture text and reference in a focused Daily Verse card.
+- Use the ellipsis menu to save the verse, highlight, or verse image on this device.
+- Use the hamburger menu to copy, get another verse, post to Home Feed, or write a reflection; Share remains a separate button.
 - Customize the card with Sage green, Ocean blue, Warm parchment, or Midnight.
 - Choose Classic, Centered, or Minimal card designs.
 - Save design preferences locally and restore defaults with Reset.
